@@ -49,7 +49,7 @@
 		"webpack-notifier": "^1.6.0"
 	},
 	"dependencies": {
-		"bootstrap": "3.3.7",
+		"bootstrap": "3.4.1",
 		"lodash": "^4.17.10",
 		"lodash.camelcase": "^4.3.0",
 		"vue": "^2.5.16",
