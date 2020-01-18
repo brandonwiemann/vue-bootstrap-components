@@ -1,0 +1,72 @@
+{
+	"name": "vue-bootstrap-components",
+	"version": "1.0.0",
+	"description": "A collection of vue components for building forms and CMS tools",
+	"main": "dist/index.js",
+	"scripts": {
+		"watch": "webpack-dev-server --mode=development --inline --color --config webpack.hmr.js --hot --open",
+		"build": "webpack -p --mode=production --config webpack.prod.js",
+		"webpack-build-prod": "webpack -p --mode=production --config webpack.prod.js"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.1.2",
+		"@babel/core": "^7.1.2",
+		"@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+		"@babel/preset-env": "^7.1.0",
+		"babel-loader": "^8.0.4",
+		"babel-plugin-lodash": "^3.3.4",
+		"babel-plugin-module-resolver": "^3.1.1",
+		"babel-plugin-syntax-dynamic-import": "^6.18.0",
+		"babel-plugin-transform-async-to-generator": "^6.24.1",
+		"babel-plugin-transform-es2015-shorthand-properties": "^6.24.1",
+		"babel-plugin-transform-object-rest-spread": "^6.26.0",
+		"clean-webpack-plugin": "^0.1.19",
+		"css-loader": "^1.0.0",
+		"css-mqpacker": "^7.0.0",
+		"cssnano": "^3.10.0",
+		"extract-text-webpack-plugin": "^3.0.2",
+		"file-loader": "^1.1.11",
+		"less": "^2.7.2",
+		"less-loader": "^4.1.0",
+		"less-plugin-clean-css": "^1.5.1",
+		"less-plugin-group-css-media-queries": "^1.1.1",
+		"mini-css-extract-plugin": "^0.4.1",
+		"postcss-loader": "^3.0.0",
+		"postcss-pixels-to-rem": "^0.8.0",
+		"regenerator-runtime": "^0.11.1",
+		"style-loader": "^0.22.1",
+		"url-loader": "^1.0.1",
+		"vue-loader": "^15.3.0",
+		"vue-resource": "^1.5.1",
+		"vue-style-loader": "^4.1.2",
+		"vue-template-compiler": "^2.5.16",
+		"webpack": "^4.16.5",
+		"webpack-bundle-analyzer": "^2.13.1",
+		"webpack-cli": "^3.1.0",
+		"webpack-dev-server": "^3.1.10",
+		"webpack-merge": "^4.1.4",
+		"webpack-notifier": "^1.6.0"
+	},
+	"dependencies": {
+		"bootstrap": "3.3.7",
+		"lodash": "^4.17.10",
+		"lodash.camelcase": "^4.3.0",
+		"vue": "^2.5.16",
+		"vue-color": "^2.4.6",
+		"vue-prism-component": "^1.1.1",
+		"vue-scrollto": "^2.15.0",
+		"vue-slider-component": "2.5.4",
+		"vuejs-datepicker": "0.9.26",
+		"zenscroll": "^4.0.2"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/brandonwiemann/vue-bootstrap-components.git"
+	},
+	"author": "Brandon Wiemann <me@brandonwiemann.com>",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/brandonwiemann/vue-bootstrap-components/issues"
+	},
+	"homepage": "https://github.com/brandonwiemann/vue-bootstrap-components#readme"
+}
