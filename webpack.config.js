@@ -1,12 +1,9 @@
 ﻿﻿'use strict';
 
-require('dotenv').config();
 const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const isProd = process.env.NODE_ENV === 'production';
 
 const config = {
 	output: {
@@ -36,7 +33,7 @@ const config = {
 			{
 				test: /\.less$/,
 				use: [
-					(isProd ? MiniCssExtractPlugin.loader : 'style-loader'),
+					'style-loader',
 					'css-loader',
 					'less-loader'
 				]
