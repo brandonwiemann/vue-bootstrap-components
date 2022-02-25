@@ -1,6 +1,6 @@
 # vue-bootstrap-components
 
-> A personal bootstrap-based Vue.js component library and sandbox built for the fun of it.
+> A personal bootstrap-based Vue.js component library and sandbox
 
 ## Table of Contents
 
@@ -252,12 +252,3 @@ Lints and fix files
 ```bash
 npm run lint
 ```
-
-## Deployment
-
-1. Pull the latest version of master
-2. Create a branch named `release-x-x-x` where `x.x.x` is the new version following the NPM's [semantic versioning guidelines](https://docs.npmjs.com/about-semantic-versioning)
-3. Update the version number in package.json to the new version
-4. Commit your change with a message of `Release x.x.x` where `x.x.x` is the new version
-5. Submit a PR for this release branch
-6. The release will automatically be deployed via GitHub Actions when the PR is merged
