@@ -1,15 +1,16 @@
 <template>
-    <form-field-wrapper v-bind="wrapperProps">
-       <div class="color-picker" @keydown="handleEnterTab($event)">
-           <div class="input-group">
-                <span
-                    class="input-group-addon color-preview"
-                    :style="{'background-color': colorString}"
-                    @click="showColorPicker = true"
-                >
+	<form-field-wrapper v-bind="wrapperProps">
+		<div class="color-picker" @keydown="handleEnterTab($event)">
+			<div class="input-group">
+				<span
+					class="input-group-addon color-preview"
+					:style="{'background-color': colorString}"
+					@click="showColorPicker = true"
+				>
                     &nbsp;&nbsp;&nbsp;
-                </span>
-                <input
+				</span>
+				<input
+					data-test="input"
 					type="text"
 					class="form-control"
 					:id="id"
@@ -19,132 +20,161 @@
 					v-on="inputListeners"
 					ref="_input"
 				/>
-            </div>
-            <div class="picker-wrapper" v-if="showColorPicker">
-                <chrome-color-picker
-                    :value="colorString"
-                    @input="updateColor"
-                />
-           </div>
-       </div>
-    </form-field-wrapper>
+			</div>
+			<div class="picker-wrapper" v-if="showColorPicker">
+				<chrome-color-picker
+					:value="colorString"
+					@input="updateColor"
+				/>
+			</div>
+		</div>
+	</form-field-wrapper>
 </template>
 
-<script>
-import FormField from "./private/FormField.vue";
-import { Chrome } from "vue-color";
-import validator from '../../helpers/form-validator';
-export default {
-    extends: { ...FormField },
-    name: "ColorPicker",
-    components: {
-        "chrome-color-picker": Chrome
-    },
-    computed: {
-        inputRules() {
-            let userRules = this.rules || "";
-            if (userRules.indexOf("colorhex") > -1) return userRules;
-            return `${userRules}|colorhex`;
-		},
-		inputListeners() {
-			let self = this;
-			return Object.assign({}, self.$listeners, {
-				input: function (event) {
-					self.updateColor(event.target.value)
-				},
-				focus() {
-					self.showColorPicker = true;
-				},
-				keyup(event) {
-					self.handleKeyPress(event);
-				}
-			});
+<script lang="ts">
+import { Component, Watch } from 'vue-property-decorator';
+import { FormInputEvent } from '@/types/forms';
+import BaseFormField from '@/components/forms/private/BaseFormField.vue';
+import FormValidator from '@/classes/FormValidator';
+import { Chrome } from 'vue-color';
+import { jsonEquals } from '@/helpers/json.helpers';
+
+@Component({
+	name: 'Colorpicker',
+	components: {
+		'chrome-color-picker': Chrome
+	}
+})
+export default class Colorpicker extends BaseFormField {
+
+	$refs!: {
+		_input: HTMLInputElement;
+	}
+
+	/* Data
+	============================================*/
+
+	colorString: string = this.value || '';
+	showColorPicker: boolean = false;
+
+	/* Computed
+	============================================*/
+
+	get inputRules(): string {
+		if(typeof this.rules !== 'string') return '';
+		let userRules = this.rules || '';
+		if (userRules.indexOf('colorhex') > -1) return userRules;
+		return `${userRules}|colorhex`;
+	}
+
+	get inputListeners(): Record<string, Function | Function[]> {
+		let self = this;
+		return Object.assign({}, self.$listeners, {
+			input(event: FormInputEvent) {
+				self.updateColor(event.target.value);
+			},
+			focus() {
+				self.showColorPicker = true;
+			}
+		});
+	}
+
+	/* Methods
+	============================================*/
+
+	getValidator(): FormValidator {
+		if(this.$validator && (this.$validator instanceof FormValidator)) {
+			return this.$validator;
 		}
-    },
-    data() {
-        return {
-            colorString: this.value || '',
-            showColorPicker: false
-        };
-    },
-    methods: {
-        handleEnterTab($e) {
-            if(!this.showColorPicker) return;
-            if ($e.keyCode === 27) {
-                this.hideColorPicker();
-            } else if ($e.keyCode === 13 || $e.keyCode === 9) {
-                this.updateColor($e.target.value);
-                this.hideColorPicker();
-            }
-        },
+		return new FormValidator();
+	}
 
-        handleExternalEvents(remove = false) {
-            let self = this;
-            if (!remove) {
-                document.body.addEventListener(
-                    "click",
-                    self.hideColorPicker.bind(this)
-                );
-                document.body.addEventListener(
-                    "keydown",
-                    self.handleEnterTab.bind(this)
-                );
-            } else {
-                document.body.removeEventListener(
-                    "click",
-                    self.hideColorPicker
-                );
-                document.body.removeEventListener(
-                    "keydown",
-                    self.handleEnterTab
-                );
-            }
-        },
+	handleEnterTab($e: KeyboardEvent) {
+		if(!this.showColorPicker) return;
+		if ($e.keyCode === 27) {
+			this.hideColorPicker();
+		} else if ($e.keyCode === 13 || $e.keyCode === 9) {
+			let target = $e.target as HTMLLIElement;
+			if(!target) return;
+			this.updateColor(target.value);
+			this.hideColorPicker();
+		}
+	}
 
-        hideColorPicker($e) {
-            if ($e) {
-                if (this.$el.contains($e.target)) return;
-            }
-            this.showColorPicker = false;
-            if (!this.$refs._input) return;
-            this.$refs._input.blur();
-        },
+	handleExternalEvents(remove = false) {
+		let self = this;
+		if (!remove) {
+			document.body.addEventListener(
+				'click',
+				self.hideColorPicker.bind(this)
+			);
+			document.body.addEventListener(
+				'keydown',
+				self.handleEnterTab.bind(this)
+			);
+		} else {
+			document.body.removeEventListener(
+				'click',
+				self.hideColorPicker
+			);
+			document.body.removeEventListener(
+				'keydown',
+				self.handleEnterTab
+			);
+		}
+	}
 
-        updateColor(color) {
-            if (typeof color === 'object' && color.hex) {
-                this.colorString = color.hex;
-            } else if (typeof color === 'string') {
-                this.colorString = color;
-            } else {
-                this.colorString = '';
-            }
-            this.$emit("input", this.colorString);
-        },
+	hideColorPicker($e?: Event) {
+		if ($e) {
+			if (this.$el.contains($e.target as HTMLElement)) return;
+		}
+		this.showColorPicker = false;
+		if (!this.$refs._input) return;
+		this.$refs._input.blur();
+	}
 
-        validate() {
-			return new Promise((resolve, reject) => {
-				this.error = null;
-				if(!this.canValidate) resolve(true);
-				this.error = validator.validate(this.inputRules, this.value, this.label);
-				resolve(!this.error);
-			});
-        },
+	updateColor(color: any) {
+		if (typeof color === 'object' && color.hex) {
+			this.colorString = color.hex;
+		} else if (typeof color === 'string') {
+			this.colorString = color;
+		} else {
+			this.colorString = '';
+		}
+		this.$emit('input', this.colorString);
+	}
 
-    },
-    mounted() {
-        this.handleExternalEvents();
-    },
-    beforeDestroy() {
-        this.handleExternalEvents(true);
-    },
-    watch: {
-        value: function(newVal, oldVal) {
-            if (newVal !== oldVal) {
-                this.updateColor(newVal);
-            }
-        }
-    }
-};
+	validate(): Promise<boolean> {
+		return new Promise((resolve) => {
+			this.error = null;
+			if(!this.canValidate) resolve(true);
+			this.error = this.getValidator().validate(this.inputRules, this.value);
+			resolve(!this.error);
+		});
+	}
+
+	/* Lifecycle Hooks
+	============================================*/
+
+	mounted() {
+		this.handleExternalEvents();
+	}
+
+	beforeDestroy() {
+		this.handleExternalEvents(true);
+	}
+
+	/* Watchers
+	============================================*/
+
+	@Watch('value')
+	onValueChange(newVal: any, oldVal: any) {
+		if(jsonEquals(newVal, oldVal)) return;
+		this.updateColor(newVal);
+	}
+
+}
+
 </script>
 
 <style scoped>
@@ -153,7 +183,8 @@ export default {
 	max-width: 440px;
 }
 .color-preview {
-    cursor: pointer;
+	cursor: pointer;
+	width: 34px;
 }
 .picker-wrapper {
     top: 100%;

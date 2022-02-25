@@ -7,170 +7,193 @@
 			:style="tipStyle"
 			@click="calculatePosition"
 		>
-			<div class="am-tooltip-arrow" :style="tipArrowStyle"/>
+			<div class="am-tooltip-arrow" :style="tipArrowStyle"></div>
 			<span>{{ text }}</span>
 		</div>
 	</div>
 </template>
 
-<script>
-import VueScrollTo from "vue-scrollto";
-export default {
-	name: "ToolTip",
-	props: {
-		arrowSize: {
-			type: Number,
-			default: 16
-		},
-		bgColor: {
-			type: String,
-			default: "#565656"
-		},
-		fontColor: {
-			type: String,
-			default: "#FFFFFF"
-		},
-		text: {
-			type: String,
-			required: true
-		},
-		position: {
-			type: String,
-			default: "left"
-		},
-		shake: {
-			type: Boolean,
-			default: true
-		},
-		show: Boolean,
-		scroll: Boolean,
-		scrollTime: {
-			type: Number,
-			default: 300
-		},
-		width: String,
-	},
-	computed: {
-		tipStyle() {
-			let style = `
-                background-color: ${this.bgColor};
-                color: ${this.fontColor};
-			`;
-			if(this.width) {
-                style += `max-width: ${this.width};`
-            }
-			switch (this.position) {
-				case "right":
-					style += `
-                        top: ${this.centerY}px;
-                        right: ${this.positionX}px;
-                    `;
-					break;
-				case "bottom":
-					style += `
-                        bottom: ${this.positionY}px;
-                        left: ${this.centerX}px;
-                    `;
-					break;
-				case "top":
-					style += `
-                        top: ${this.positionY}px;
-                        left: ${this.centerX}px;
-                    `;
-					break;
-				default:
-					style += `
-                        top: ${this.centerY}px;
-                        left: ${this.positionX}px;
-                    `;
-					break;
-			}
-			return style;
-		},
-		tipArrowStyle() {
-			let middle = Math.floor(this.arrowSize / 2) * -1;
-			let style = `
-                background-color: ${this.bgColor};
-                color: ${this.fontColor};
-                height: ${this.arrowSize}px;
-                width: ${this.arrowSize}px;
-            `;
-			switch (this.position) {
-				case "right":
-					style += `
-                        top: ${this.centerY}px;
-                        left: ${middle}px;
-                    `;
-					break;
-				case "bottom":
-					style += `
-                        top: ${middle}px;
-                        left: ${this.arrowX}px;
-                    `;
-					break;
-				case "top":
-					style += `
-                        bottom: ${middle}px;
-                        left: ${this.arrowX}px;
-                    `;
-					break;
-				default:
-					style += `
-                        top: ${this.arrowY}px;
-                        right: ${middle}px;
-                    `;
-					break;
-			}
-			return style;
-		}
-	},
-	data() {
-		return {
-			centerX: 0,
-			centerY: 0,
-			positionOverride: null,
-			positionX: 0,
-			positionY: 0,
-			arrowX: 0,
-			arrowY: 0
-		};
-	},
-	methods: {
-		calculatePosition() {
-			let tip = this.$refs._tippy;
-			if (!tip) return;
-			let parentHeight = this.$el.clientHeight;
-			let parentWidth = this.$el.clientWidth;
-			let tipHeight = tip.clientHeight;
-			let tipWidth = tip.clientWidth;
-			this.centerY = Math.floor((parentHeight - tipHeight) / 2);
-			this.centerX = Math.floor((parentWidth - tipWidth) / 2);
-			this.positionX = (tipWidth + 20) * -1;
-			this.positionY = (tipHeight + 10) * -1;
-			this.arrowY = Math.ceil((tipHeight - 16) / 2);
-			this.arrowX = Math.ceil((tipWidth - 10) / 2);
-			this.$forceUpdate();
-		},
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop, Watch } from 'vue-property-decorator';
+import VueScrollTo from 'vue-scrollto';
 
-		scrollToElement() {
-			if (!this.scroll || !this.$refs._tippy) return;
-			let el = this.position !== 'top' ? this.$el : this.$refs._tippy;
-			VueScrollTo.scrollTo(el, this.scrollTime, { offset: -100 });
+@Component({
+	name: 'ToolTip',
+})
+export default class ToolTip extends Vue {
+
+	$refs!: {
+		_tippy: HTMLElement;
+	}
+
+	/* Props
+	============================================*/
+
+	@Prop({type: Number, required: false})
+	readonly arrowSize: number;
+
+	@Prop({type: String, required: false, default: '#565656'})
+	readonly bgColor: string;
+
+	@Prop({type: String, required: false, default: '#FFFFFF'})
+	readonly fontColor: string;
+
+	@Prop({type: String, required: false, default: 'left'})
+	readonly position: string;
+
+	@Prop({type: Boolean, required: false})
+	readonly scroll: boolean;
+
+	@Prop({type: Number, required: false, default: 100})
+	readonly scrollTime: number;
+
+	@Prop({type: Boolean, required: false, default: false})
+	readonly shake: boolean;
+
+	@Prop({type: Boolean, required: false})
+	readonly show: boolean;
+
+	@Prop({type: String, required: true})
+	readonly text: string;
+
+	@Prop({type: String, required: false, default: ''})
+	readonly width: string;
+
+	/* Data
+	============================================*/
+
+	centerX: number = 0;
+	centerY: number = 0;
+	positionOverride: any = null;
+	positionX: number = 0;
+	positionY: number = 0;
+	arrowX: number = 0;
+	arrowY: number = 0;
+
+	/* Computed
+	============================================*/
+
+	get tipStyle() {
+		let style = `
+			background-color: ${this.bgColor};
+			color: ${this.fontColor};
+		`;
+		if(this.width) {
+			style += `max-width: ${this.width};`;
 		}
-	},
+		switch (this.position) {
+			case 'right':
+				style += `
+					top: ${this.centerY}px;
+					right: ${this.positionX}px;
+				`;
+				break;
+			case 'bottom':
+				style += `
+					bottom: ${this.positionY}px;
+					left: ${this.centerX}px;
+				`;
+				break;
+			case 'top':
+				style += `
+					top: ${this.positionY}px;
+					left: ${this.centerX}px;
+				`;
+				break;
+			default:
+				style += `
+					top: ${this.centerY}px;
+					left: ${this.positionX}px;
+				`;
+				break;
+		}
+		return style;
+	}
+
+	get tipArrowStyle() {
+		let middle = Math.floor(this.arrowSize / 2) * -1;
+		let style = `
+			background-color: ${this.bgColor};
+			color: ${this.fontColor};
+			height: ${this.arrowSize}px;
+			width: ${this.arrowSize}px;
+		`;
+		switch (this.position) {
+			case 'right':
+				style += `
+					top: ${this.centerY}px;
+					left: ${middle}px;
+				`;
+				break;
+			case 'bottom':
+				style += `
+					top: ${middle}px;
+					left: ${this.arrowX}px;
+				`;
+				break;
+			case 'top':
+				style += `
+					bottom: ${middle}px;
+					left: ${this.arrowX}px;
+				`;
+				break;
+			default:
+				style += `
+					top: ${this.arrowY}px;
+					right: ${middle}px;
+				`;
+				break;
+		}
+		return style;
+	}
+
+	/* Methods
+	============================================*/
+
+	calculatePosition() {
+		let tip = this.$refs._tippy;
+		if (!tip) return;
+		let parentHeight = this.$el.clientHeight;
+		let parentWidth = this.$el.clientWidth;
+		let tipHeight = tip.clientHeight;
+		let tipWidth = tip.clientWidth;
+		this.centerY = Math.floor((parentHeight - tipHeight) / 2);
+		this.centerX = Math.floor((parentWidth - tipWidth) / 2);
+		this.positionX = (tipWidth + 20) * -1;
+		this.positionY = (tipHeight + 10) * -1;
+		this.arrowY = Math.ceil((tipHeight - 16) / 2);
+		this.arrowX = Math.ceil((tipWidth - 10) / 2);
+		this.$forceUpdate();
+	}
+
+	scrollToElement() {
+		if (!this.scroll || !this.$refs._tippy) return;
+		let el = this.position !== 'top' ? this.$el : this.$refs._tippy;
+		(VueScrollTo as any).scrollTo(el, this.scrollTime, { offset: -100 });
+	}
+
+	/* Lifecycle Hooks
+	============================================*/
+
 	mounted() {
 		this.calculatePosition();
-	},
-	watch: {
-		show(shouldShow, wasShowing) {
-			if (shouldShow === wasShowing) return;
-			this.calculatePosition();
-			if (shouldShow === true) {
-				this.scrollToElement();
-			}
+	}
+
+	/* Watchers
+	============================================*/
+
+	@Watch('show')
+	onShowChange(shouldShow: boolean, wasShowing: boolean) {
+		if (shouldShow === wasShowing) return;
+		this.calculatePosition();
+		if (shouldShow === true) {
+			this.scrollToElement();
 		}
 	}
-};
+
+}
+
 </script>
 
 <style lang="less">

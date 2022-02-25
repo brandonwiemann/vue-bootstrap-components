@@ -1,29 +1,45 @@
 ﻿<template>
-    <form-field-wrapper v-bind="wrapperProps" :hideLabel="!isHorizontal">
-        <div class="checkbox">
-            <label>
-                <input
-                    type="checkbox"
-                    v-bind:name="id"
-                    v-bind:id="id"
-                    v-bind:disabled="disabled"
-                    v-bind:rules="rules"
-                    v-bind:checked="value"
-                    v-on:change="$emit('input', !value)"
-                />
-                <span v-if="label && !isHorizontal">{{label}}</span>
-            </label>
-        </div>
-    </form-field-wrapper>
+	<form-field-wrapper v-bind="wrapperProps" :hideLabel="!isHorizontal">
+		<div class="checkbox">
+			<label>
+				<input
+					type="checkbox"
+					:name="id"
+					:id="id"
+					:disabled="disabled"
+					:rules="rules"
+					:checked="value"
+					@change="$emit('input', !value)"
+				/>
+				<span v-if="label && !isHorizontal">{{label}}</span>
+			</label>
+		</div>
+	</form-field-wrapper>
 </template>
 
-<script>
-    import FormField from './private/FormField.vue';
-    import FormFieldWrapper from './private/FormFieldWrapper.vue';
-	export default {
-        extends: { ...FormField },
-		props: {
-			value: Boolean
-		}
-	};
+
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from '@/components/forms/private/BaseFormField.vue';
+
+@Component({
+	name: 'Checkbox'
+})
+export default class Checkbox extends BaseFormField {
+
+	/* Props
+	============================================*/
+
+	@Prop({type: Boolean, required: false})
+	readonly value: boolean;
+
+	/* Methods
+	============================================*/
+
+	validate(): Promise<boolean> {
+		return Promise.resolve(true);
+	}
+
+}
+
 </script>

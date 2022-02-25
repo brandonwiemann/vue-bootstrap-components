@@ -36,145 +36,129 @@
 	</div>
 </template>
 
-<script>
-import { dynamicSort } from '../../helpers/functions';
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import SortableHeader from '../../classes/SortableHeader';
+import { AnyObject } from '@/types/generic';
+import { dynamicSort } from '@/helpers/sorting.helpers';
 
-export default {
+@Component({
 	name: 'SortableTable',
-	props: {
+})
+export default class SortableTable extends Vue {
 
-		/* Styles
-		============================================*/
-		bordered: Boolean,
-		condensed: Boolean,
-		hover: {
-			default: true,
-			type: Boolean
-		},
-		striped: {
-			default: true,
-			type: Boolean
-		},
+	/* Props
+	============================================*/
 
-		/* Data
-		============================================*/
-		columns: Array,
-		data: {
-			type: Array,
-			required: true
-		},
+	@Prop({type: Boolean, required: false})
+	readonly bordered: boolean;
 
-		/* Options
-		============================================*/
-		sortRule: Object,
-		sortDisabled: Boolean
-	},
-	computed: {
+	@Prop({type: Boolean, required: false})
+	readonly condensed: boolean;
 
-		displayableProperties() {
-			return this.headers.map(x => x.propertyName);
-		},
+	@Prop({type: Array, required: false})
+	readonly columns: string[];
 
-		tableClass() {
-			let tableClass = 'table';
-			if(this.hover) tableClass += ' table-hover';
-			if(this.striped) tableClass += ' table-striped';
-			if(this.bordered) tableClass += ' table-bordered';
-			if(this.condensed) tableClass += ' table-condensed';
-			if(this.sortDisabled) tableClass += ' sort-disabled';
-			return tableClass;
+	@Prop({type: Array, required: true})
+	readonly data: AnyObject[];
+
+	@Prop({type: Boolean, required: false, default: true})
+	readonly hover: boolean;
+
+	@Prop({type: Boolean, required: false})
+	readonly sortDisabled: boolean;
+
+	@Prop({type: Object, required: false})
+	readonly sortRule: AnyObject;
+
+	@Prop({type: Boolean, required: false, default: true})
+	readonly striped: boolean;
+
+	/* Data
+	============================================*/
+
+	activeSort: string = '';
+	headers: any[] = [];
+	sortedData: any[] = this.data ? [...this.data] : [];
+
+	/* Computed
+	============================================*/
+
+	get displayableProperties() {
+		return this.headers.map(x => x.propertyName);
+	}
+
+	get tableClass() {
+		let tableClass = 'table';
+		if(this.hover) tableClass += ' table-hover';
+		if(this.striped) tableClass += ' table-striped';
+		if(this.bordered) tableClass += ' table-bordered';
+		if(this.condensed) tableClass += ' table-condensed';
+		if(this.sortDisabled) tableClass += ' sort-disabled';
+		return tableClass;
+	}
+
+	/* Methods
+	============================================*/
+
+	createHeaderData(columns: string[]) {
+		if(!columns || !Array.isArray(columns)) {
+			columns = Object.keys(this.data[0]);
 		}
-	},
-	data() {
-		return {
-			activeSort: '',
-			headers: [],
-			sortedData: this.data ? [...this.data] : [],
+		let headers = [];
+		for(let i=0; i<columns.length;i++) {
+			headers[i] = new SortableHeader(columns[i]);
 		}
-	},
-	methods: {
+		this.headers = headers;
+	}
 
-		createHeaderData(columns) {
-			if(!columns || !Array.isArray(columns)) {
-				columns = Object.keys(this.data[0]);
-			}
-			let headers = [];
-			for(let i=0; i<columns.length;i++) {
-				headers[i] = new SortableHeader(columns[i]);
-			}
-			this.headers = headers;
-		},
+	// Sort column by header name
+	sort(header: SortableHeader) {
+		if(this.sortDisabled) return;
+		let prop = header.propertyName, self = this;
 
-		// Sort column by header name
-		sort(header) {
-			if(this.sortDisabled) return;
-			let prop = header.propertyName, self = this;
-
-			if(!header.isSorted) {
-				this.headers.forEach(h => h.resetSort());
-				header.isSorted = true;
-			} else {
-				header.descending = !header.descending;
-			}
-
-			// If a sort rule is defined, assume the parent controls sorting
-			if(!!self.sortRule) {
-				self.$emit('sort', {
-					propertyName: prop,
-					orderByDescending: header.descending
-				});
-			} else {
-				self.sortedData.sort(dynamicSort(header.getSortProp()));
-				self.$emit('sort', header);
-			}
-			self.activeSort = prop;
+		if(!header.isSorted) {
+			this.headers.forEach(h => h.resetSort());
+			header.isSorted = true;
+		} else {
+			header.descending = !header.descending;
 		}
 
-	},
-	watch: {
-		columns(newCols) {
-			this.createHeaderData(newCols);
-		},
-		data(newData) {
-			this.sortedData = [...newData];
+		// If a sort rule is defined, assume the parent controls sorting
+		if(self.sortRule) {
+			self.$emit('sort', {
+				propertyName: prop,
+				orderByDescending: header.descending
+			});
+		} else {
+			self.sortedData.sort(dynamicSort(header.getSortProp()));
+			self.$emit('sort', header);
 		}
-	},
+		self.activeSort = prop;
+	}
+
+	/* Lifecycle Hooks
+	============================================*/
+
 	mounted() {
 		this.createHeaderData(this.columns);
 	}
+
+	/* Watchers
+	============================================*/
+	@Watch('columns')
+	onColumnsChange(newCols: any) {
+		this.createHeaderData(newCols);
+	}
+
+	@Watch('data')
+	onDataChange(newData: any) {
+		this.sortedData = [...newData];
+	}
+
 }
+
 </script>
 
-<style lang="less">
-.sortable-table {
-	.st-header {
-		cursor: pointer;
-		user-select: none;
-		&:hover {
-			background-color: rgba(0,0,0,0.15);
-		}
-		&.st-sorted {
-			background-color: rgba(0,0,0,0.1)
-		}
-	}
-	.st-row-sorted {
-		background-color: rgba(0,0,0,0.04)
-	}
-	.invisible {
-		visibility: hidden;
-	}
-	.st-arrow {
-		color: #888;
-		font-size: 80%;
-	}
-	table.sort-disabled {
-		.st-header {
-			cursor: default;
-			&:hover {
-				background-color: transparent;
-			}
-		}
-	}
-}
-</style>
+<style lang="scss"></style>

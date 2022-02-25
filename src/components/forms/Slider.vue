@@ -1,5 +1,5 @@
 <template>
-    <form-field-wrapper v-bind="wrapperProps">
+	<form-field-wrapper v-bind="wrapperProps">
 		<div class="pm-slider-wrapper">
 			<input
 				class="pm-slider"
@@ -15,29 +15,35 @@
 				{{value}} {{units}}
 			</div>
 		</div>
-    </form-field-wrapper>
+	</form-field-wrapper>
 </template>
 
-<script>
-    import FormField from './private/FormField.vue';
-	export default {
-        extends: { ...FormField },
-		props: {
-			max: {
-				type: Number,
-				default: 100
-			},
-			min: {
-				type: Number,
-				default: 0
-			},
-			hideAmount: Boolean,
-			units: {
-				type: String,
-				default: '%'
-			}
-		}
-	};
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
+
+@Component({
+	name: 'Slider',
+})
+export default class Slider extends BaseFormField {
+
+	/* Props
+	============================================*/
+
+	@Prop({type: Boolean, required: false})
+	readonly hideAmount: boolean;
+
+	@Prop({type: Number, required: false, default: 100})
+	readonly max: number;
+
+	@Prop({type: Number, required: false, default: 0})
+	readonly min: number;
+
+	@Prop({type: String, required: false, default: '%'})
+	readonly units: string;
+
+}
+
 </script>
 
 <style>

@@ -50,113 +50,136 @@
 	</div>
 </template>
 
-<script>
-import SearchResult from 'classes/SearchResult';
-import { dynamicSort, jsonCopy, jsonEquals } from '../../helpers/functions';
-import Pagination from './Pagination.vue';
-import SearchInput from '../forms/SearchInput.vue';
-import SortableTable from './SortableTable.vue';
 
-export default {
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop, Watch } from 'vue-property-decorator';
+import { AnyObject } from '@/types/generic';
+import SearchResult from '@/classes/SearchResult';
+
+@Component({
 	name: 'SearchListing',
-	props: {
-		bottomPagination: Boolean,
-		columns: Array,
-		fullList: Array,
-		noResultsText: {
-			type: String,
-			default: 'No results were found.'
-		},
-		noResultsStyle: Object,
-		paginationDisabled: Boolean,
-		searchDisabled: Boolean,
-		searchResult: {
-			type: [Object, SearchResult],
-			required: true
-		},
-		searchProps: Object,
-		sortDisabled: Boolean,
-		tableProps: Object
-	},
-	components: {
-		Pagination,
-		SearchInput,
-		SortableTable
-	},
-	computed: {
-		hasFullList() {
-			return Array.isArray(this.fullList)
-				&& this.fullList.length > 0;
-		},
-		query() {
-			if(!this.result) return {};
-			return this.result.query || {};
-		}
-	},
-	data() {
-		return {
-			lastQuery: null,
-			result: null
-		}
-	},
-	methods: {
+})
+export default class SearchListing extends Vue {
 
-		paginate(pageNum) {
-			this.result.query.pageNum = pageNum;
-			this.update();
-		},
+	/* Props
+	============================================*/
 
-		search(query) {
-			// If the keyword has changed we need to set pageNum back to 1
-			if(this.lastQuery && this.query.pageNum !== 1) {
-				if(this.lastQuery.keyword !== query) {
-					this.query.pageNum = 1;
-				}
-			}
-			this.query.keyword = query;
-			this.update();
-		},
+	@Prop({type: Boolean, required: false})
+	readonly bottomPagination: boolean;
 
-		rowClicked(item) {
-			this.$emit('rowClicked', item);
-		},
+	@Prop({type: Array, required: false})
+	readonly columns: {propertyName: string}[];
 
-		sort(sortRule) {
-			this.result.sortRule = sortRule;
-			this.update();
-		},
+	@Prop({type: Array, required: false})
+	readonly fullList: any[];
 
-		update() {
-			this.lastQuery = JSON.parse(JSON.stringify(this.query));
-			if(this.hasFullList) {
-				this.result.getResults(this.fullList);
-			}
-			this.$emit('input', this.query);
-		},
+	@Prop({type: String, required: false, default: 'No results were found.'})
+	readonly noResultsText: string;
 
-		updateSearchResult(result) {
-			if(typeof result === 'SearchResult' || typeof result === 'object') {
-				this.result = new SearchResult(result);
-				if(this.columns
-					&& this.columns.length
-					&& (!this.query.columnsToSearch || !this.query.columnsToSearch.length)
-					&& typeof this.columns[0] === 'object'
-				) {
-					this.query.columnsToSearch = this.columns.map(x => x.propertyName);
-				}
+	@Prop({type: Object, required: false})
+	readonly noResultsStyle: AnyObject;
+
+	@Prop({type: Boolean, required: false})
+	readonly paginationDisabled: boolean;
+
+	@Prop({type: Boolean, required: false})
+	readonly searchDisabled: boolean;
+
+	@Prop({type: Object as () => SearchResult, required: false})
+	readonly searchResult: SearchResult;
+
+	@Prop({type: Object, required: false})
+	readonly searchProps: AnyObject;
+
+	@Prop({type: Boolean, required: false})
+	readonly sortDisabled: boolean;
+
+	@Prop({type: Object, required: false})
+	readonly tableProps: AnyObject;
+
+	/* Data
+	============================================*/
+
+	lastQuery: any = null;
+	result: any = null;
+
+	/* Computed
+	============================================*/
+
+	get hasFullList() {
+		return Array.isArray(this.fullList)
+			&& this.fullList.length > 0;
+	}
+
+	get query() {
+		if(!this.result) return {};
+		return this.result.query || {};
+	}
+
+	/* Methods
+	============================================*/
+
+	paginate(pageNum: number | string) {
+		this.result.query.pageNum = pageNum;
+		this.update();
+	}
+
+	search(query: string) {
+		// If the keyword has changed we need to set pageNum back to 1
+		if(this.lastQuery && this.query.pageNum !== 1) {
+			if(this.lastQuery.keyword !== query) {
+				this.query.pageNum = 1;
 			}
 		}
+		this.query.keyword = query;
+		this.update();
+	}
 
-	},
-	mounted() {
-		this.updateSearchResult(this.searchResult);
-	},
-	watch: {
-		searchResult(newResult) {
-			this.updateSearchResult(newResult);
+	rowClicked(item: AnyObject) {
+		this.$emit('rowClicked', item);
+	}
+
+	sort(sortRule: any) {
+		this.result.sortRule = sortRule;
+		this.update();
+	}
+
+	update() {
+		this.lastQuery = JSON.parse(JSON.stringify(this.query));
+		if(this.hasFullList) {
+			this.result.getResults(this.fullList);
+		}
+		this.$emit('input', this.query);
+	}
+
+	updateSearchResult() {
+		if(this.columns
+			&& this.columns.length
+			&& (!this.query.columnsToSearch || !this.query.columnsToSearch.length)
+			&& typeof this.columns[0] === 'object'
+		) {
+			this.query.columnsToSearch = this.columns.map(x => x.propertyName);
 		}
 	}
+
+	/* Lifecycle Hooks
+	============================================*/
+
+	mounted() {
+		this.updateSearchResult();
+	}
+
+	/* Watchers
+	============================================*/
+
+	@Watch('searchResult')
+	onSearchResultChange() {
+		this.updateSearchResult();
+	}
+
 }
+
 </script>
 
 <style lang="less" scoped>

@@ -1,3 +1,3 @@
-export default function TableDate(obj) {
+export default function TableDate() {
 	this.columns = [];
 }

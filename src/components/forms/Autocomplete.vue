@@ -1,26 +1,27 @@
-
 <template>
 	<form-field-wrapper v-bind="wrapperProps">
 		<div class="autocomplete-wrapper">
 			<input
+				data-test="input"
 				type="text"
 				class="autocomplete-input form-control"
-				v-bind:class="inputClass"
-				v-bind:id="id"
-				v-bind:disabled="disabled"
-				v-bind:readonly="readonly"
+				:class="inputClass"
+				:id="id"
+				:disabled="disabled"
+				:readonly="readonly"
 				autocomplete="off"
 				:value="value"
 				v-bind="$attrs"
 				v-on="inputListeners"
 			/>
-			<div class="ac-list" v-show="listVisible && results" ref="_list">
+			<div class="ac-list" v-show="listVisible && results" ref="_list" data-test="list">
 				<div
 					v-for="(r, index) in results"
 					:key="r[anchor]"
 					@mousedown="selectResult(r)"
 					:class="['ac-item', {'highlighted': highlighted === index}]"
 					:id="`result${index}`"
+					data-test="list-item"
 				>
 					<span>
 						<b v-if="!labelKey">{{ r[anchor] }}</b>
@@ -38,250 +39,276 @@
 	</form-field-wrapper>
 </template>
 
-<script>
-import FormField from "./private/FormField.vue";
-import { jsonCopy, jsonEquals } from 'helpers/functions';
-import { sortByQuery } from '../../helpers/functions';
-export default {
-    extends: { ...FormField },
-    props: {
-		anchor: {
-			type: String,
-			required: true
-		},
-		clearOnSelect: Boolean,
-		data: Array,
-		debounce: {
-			type: Number,
-			default: 250
-		},
-		initValue: String,
-		labelKey: String,
-		minCharacters: {
-			type: Number,
-			default: 3
-		},
-		onSelect: Function,
-		queryParam: {
-			type: String,
-			default: 'q'
-		},
-		url: String,
-		value: {
-			type: String,
-			default: ''
-		}
-	},
+<script lang="ts">
+import { Component, Prop, Watch } from 'vue-property-decorator';
+import BaseFormField from '@/components/forms/private/BaseFormField.vue';
+import { AnyObject } from '@/types/generic';
+import { FormInputEvent } from '@/types/forms';
+import { sortByQuery } from '@/helpers/sorting.helpers';
 
-	computed: {
-		inputListeners() {
-			let self = this;
-			return Object.assign({}, self.$listeners, {
-				blur(event) {
-					self.hideList();
-				},
-				input(event) {
-					self.search(event);
-				}
-			});
-		}
-	},
-    data() {
-        return {
-			highlighted: null,
-			listVisible: false,
-			results: [],
-			timeout: null
-        };
-    },
+@Component({
+	name: 'Autocomplete',
+})
+export default class Autocomplete extends BaseFormField {
 
-    methods: {
+	$refs!: {
+		_list: HTMLElement;
+	}
 
-		handleArrowPress(up = false) {
-			if(up === false && this.highlighted === null) {
-				this.highlighted = 0;
-			} else {
-				let index = this.highlighted;
-				index = up ? index - 1 : index + 1;
-				if(index >= this.results.length || index < 0) return;
-				this.highlighted = index;
+	/* Props
+	============================================*/
+
+	/**
+	 * The key of the data object to use as the emitted value
+	 */
+	@Prop({type: String, required: true})
+	readonly anchor: string;
+
+	/**
+	 * Clear the input field when a value is selected
+	 */
+	@Prop({type: Boolean, required: false})
+	readonly clearOnSelect: boolean;
+
+	/**
+	 * An array of objects to search through
+	 */
+	@Prop({type: Array, required: false})
+	readonly data: AnyObject[];
+
+	/**
+	 * Debounce time in ms
+	 */
+	@Prop({type: Number, required: false, default: 250})
+	readonly debounce: number;
+
+	/**
+	 * [DEPRECATED] The initial input field value
+	 */
+	@Prop({type: String, required: false})
+	readonly initValue: string;
+
+	/**
+	 * The key of the data object to display as the text value
+	 */
+	@Prop({type: String, required: false})
+	readonly labelKey: string;
+
+	/**
+	 * The minimum amount of characters needed to perform a search
+	 */
+	@Prop({type: Number, required: false, default: 3})
+	readonly minCharacters: number;
+
+	/**
+	 * [DEPRECATED] Function called when a value is selected
+	 */
+	@Prop({type: Function, required: false})
+	readonly onSelect: (x: any) => void;
+
+	/**
+	 * The URL parameter name for the keyword
+	 */
+	@Prop({type: String, required: false, default: 'q'})
+	readonly queryParam: string;
+
+	/**
+	 * The url to send the search request to
+	 */
+	@Prop({type: String, required: false})
+	readonly url: string;
+
+	/* Data
+	============================================*/
+
+	highlighted: number | null = null;
+	listVisible: boolean = false;
+	results: any[] = [];
+	timeout: number = 0;
+
+	/* Computed
+	============================================*/
+
+	get inputListeners(): Record<string, Function | Function[]> {
+		let self = this;
+		return Object.assign({}, self.$listeners, {
+			blur() {
+				self.hideList();
+			},
+			input(event: FormInputEvent) {
+				self.search(event);
 			}
-			this.scrollToSelectedElement(this.highlighted);
-		},
+		});
+	}
 
-		handleEnterPress() {
-			if(this.highlighted !== null && this.results[this.highlighted]) {
-				this.selectResult(this.results[this.highlighted]);
-			}
-		},
+	/* Methods
+	============================================*/
 
-		handleKeyDown(e) {
-			if(!this.listVisible) return;
-			if(e.keyCode === 38) {
-				this.handleArrowPress(true);
-			} else if(e.keyCode === 40) {
-				this.handleArrowPress(false);
-			} else if (e.keyCode === 13) {
-				this.handleEnterPress();
-			} else if(e.keyCode === 27) {
-				this.hideList();
-			}
-		},
-
-		handleListeners(remove = false) {
-			let self = this;
-			if(!remove) {
-				document.body.addEventListener('keydown', self.handleKeyDown.bind(this));
-			} else {
-				document.body.removeEventListener('keydown', self.handleKeyDown);
-			}
-		},
-
-		hideList() {
-			this.listVisible = false;
-			this.$refs._list.scrollTop = 0;
-			this.highlighted = null;
-		},
-
-		highlightFirstItem() {
+	handleArrowPress(up = false) {
+		if(up === false && this.highlighted === null) {
 			this.highlighted = 0;
-		},
+		} else {
+			let index = this.highlighted || 0;
+			index = up ? index - 1 : index + 1;
+			if(index >= this.results.length || index < 0) return;
+			this.highlighted = index;
+		}
+		this.scrollToSelectedElement(this.highlighted);
+	}
 
-		scrollToSelectedElement(index) {
-			if(!index) return;
-			let el = document.getElementById(`result${index}`);
-			if(!el) return;
-			let topPos = el.offsetTop;
-			if(topPos >= this.$refs._list.clientHeight - 100) {
-				this.$refs._list.scrollTop = el.offsetTop - 100;
-			} else {
-				this.$refs._list.scrollTop = 0;
+	handleEnterPress() {
+		if(this.highlighted !== null && this.results[this.highlighted]) {
+			this.selectResult(this.results[this.highlighted]);
+		}
+	}
+
+	handleKeyDown(e: KeyboardEvent) {
+		if(!this.listVisible) return;
+		if(e.keyCode === 38) {
+			this.handleArrowPress(true);
+		} else if(e.keyCode === 40) {
+			this.handleArrowPress(false);
+		} else if (e.keyCode === 13) {
+			this.handleEnterPress();
+		} else if(e.keyCode === 27) {
+			this.hideList();
+		}
+	}
+
+	handleListeners(remove = false) {
+		let self = this;
+		if(!remove) {
+			document.body.addEventListener('keydown', self.handleKeyDown.bind(this));
+		} else {
+			document.body.removeEventListener('keydown', self.handleKeyDown);
+		}
+	}
+
+	hideList() {
+		this.listVisible = false;
+		this.$refs._list.scrollTop = 0;
+		this.highlighted = null;
+	}
+
+	highlightFirstItem() {
+		this.highlighted = 0;
+	}
+
+	scrollToSelectedElement(index: number | null) {
+		if(!index) return;
+		let el = document.getElementById(`result${index}`);
+		if(!el) return;
+		let topPos = el.offsetTop;
+		if(topPos >= this.$refs._list.clientHeight - 100) {
+			this.$refs._list.scrollTop = el.offsetTop - 100;
+		} else {
+			this.$refs._list.scrollTop = 0;
+		}
+	}
+
+	search(e: FormInputEvent) {
+		let self = this;
+		let query = e.target.value;
+		this.$emit('input', query);
+		if(self.timeout) clearTimeout(self.timeout);
+		self.timeout = setTimeout(() => {
+			if(!query || query.length < self.minCharacters) {
+				return self.hideList();
 			}
-		},
+			query = query.toLowerCase();
+			if(!self.url && Array.isArray(self.data)) {
+				self.searchLocal(query);
+			} else {
+				self.searchExternal(query);
+			}
+			if(self.results.length) {
+				// Highlight first option
+				self.highlightFirstItem();
+			}
+		}, self.debounce);
+	}
 
-		search(e) {
-			let self = this;
-			let query = e.target.value;
-			this.$emit('input', query);
-			if(self.timeout) clearTimeout(self.timeout);
-			self.timeout = setTimeout(() => {
-				if(!query || query.length < self.minCharacters) {
-					return self.hideList();
-				}
-				query = query.toLowerCase();
-				if(!self.url && Array.isArray(self.data)) {
-					self.searchLocal(query);
-				} else {
-					self.searchExternal(query);
-				}
-				if(self.results.length) {
-					// Highlight first option
-					self.highlightFirstItem();
-				}
-			}, self.debounce);
-		},
+	searchLocal(query: string) {
+		let results: any[] = [];
+		let key = this.labelKey ? this.labelKey : this.anchor;
+		this.data.forEach(val => {
+			if(val[key].toLowerCase().indexOf(query) > -1) {
+				results.push(val);
+			}
+		});
+		this.results = results.sort((a, b) => sortByQuery(a[key].toString(), b[key].toString(), query));
+		this.listVisible = true;
+	}
 
-		searchLocal(query) {
-			let self = this;
-			let results = [];
-			let key = !!this.labelKey ? this.labelKey : this.anchor;
-			this.data.forEach(val => {
-				if(val[key].toLowerCase().indexOf(query) > -1) {
-					results.push(val);
-				}
-			});
+	searchExternal(query: string) {
+		let url = (this.url.indexOf('?') === -1)
+			? `${this.url}?${this.queryParam}=${query}`
+			: `${this.url}&${this.queryParam}=${query}`;
+
+		let self = this;
+		self.makeRequest(url).then((res: any) => {
+			let results = JSON.parse(res) as AnyObject[];
+			let key = self.labelKey ? self.labelKey : self.anchor;
+			// Sort the results by the most relevant
 			self.results = results.sort((a, b) => sortByQuery(a[key].toString(), b[key].toString(), query));
 			self.listVisible = true;
-		},
+		}).catch((xhr) => {
+			console.warn('autocomplete failed', xhr);
+		});
+	}
 
-		searchExternal(query) {
-			let self = this;
-			let url = `${self.url}?${self.queryParam}=${query}`;
-			self.makeRequest(url).then((res) => {
-				let results = JSON.parse(res);
-				let key = !!self.labelKey ? self.labelKey : self.anchor;
-				// Sort the results by the most relevant
-				self.results = results.sort((a, b) => sortByQuery(a[key].toString(), b[key].toString(), query));
-				self.listVisible = true;
-			}).catch((xhr) => {
-				console.warn('autocomplete failed', xhr);
-			});
-		},
-
-		selectResult(result) {
-			if(typeof this.onSelect === 'function') {
-				console.warn("onSelect prop is deprecated. Please listen for a 'select' event instead");
-				this.onSelect(result);
-			}
-			this.$emit('select', result);
-			let newVal = this.labelKey ? result[this.labelKey] : result[this.anchor];
-			if(this.clearOnSelect === true) newVal = '';
-			this.$emit('input', newVal);
-			this.hideList();
-		},
-
-		makeRequest(url) {
-			return new Promise((resolve, reject) => {
-				let xhr = new XMLHttpRequest();
-				xhr.open('GET', url);
-				xhr.onload = () => resolve(xhr.response);
-				xhr.onerror = () => reject(xhr);
-				xhr.send();
-			});
+	selectResult(result: AnyObject) {
+		if(typeof this.onSelect === 'function') {
+			console.warn('onSelect prop is deprecated. Please listen to \'select\' event instead');
+			this.onSelect(result);
 		}
-	},
+		this.$emit('select', result);
+		let newVal = this.labelKey ? result[this.labelKey] : result[this.anchor];
+		if(this.clearOnSelect === true) newVal = '';
+		this.$emit('input', newVal);
+		this.hideList();
+	}
+
+	makeRequest(url: string): Promise<AnyObject[]> {
+		return new Promise((resolve, reject) => {
+			let xhr = new XMLHttpRequest();
+			xhr.open('GET', url);
+			xhr.onload = () => resolve(xhr.response);
+			xhr.onerror = () => reject(xhr);
+			xhr.send();
+		});
+	}
+
+	/* Lifecycle Hooks
+	============================================*/
+
 	beforeDestroy() {
 		this.handleListeners(true);
-	},
+	}
+
 	mounted() {
 		this.handleListeners();
-		if(!!this.initValue) {
+		if(this.initValue) {
 			console.warn('initValue prop on <Autocomplete /> is deprecated. Please use v-model directive instead');
 			if(this.initValue !== this.value) {
 				this.$emit('input', this.initValue);
 			}
 		}
-	},
-	watch: {
-		initValue(newVal, oldVal) {
-			if(newVal !== oldVal) {
-				this.$emit('input', newVal);
-			}
+	}
+
+	/* Watchers
+	============================================*/
+
+	@Watch('initValue')
+	onInitValueChange(newVal: any, oldVal: any) {
+		if(newVal !== oldVal) {
+			console.warn('initValue prop on <Autocomplete /> is deprecated. Please use v-model directive instead');
+			this.$emit('input', newVal);
 		}
 	}
-};
+
+}
+
 </script>
 
-<style lang="less">
-.autocomplete-wrapper {
-	position: relative;
-}
-.ac-list {
-	position: absolute;
-	top: 34px; right: 0; left: 0;
-	background-color: white;
-	max-height: 300px;
-	overflow-y: scroll;
-	z-index: 2;
-	box-shadow: 1px 1px 8px 0 rgba(0,0,0,.2);
-}
-
-.ac-item {
-	padding: 10px;
-	cursor: pointer;
-	user-select: none;
-}
-
-.ac-item:hover {
-	background-color: #eee;
-}
-
-.ac-item.selected {
-	background-color: #ccc;
-}
-
-.ac-item.highlighted {
-	background-color: #1893fc;
-	color: #FFF;
-}
-</style>
+<style lang="scss"></style>

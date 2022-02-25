@@ -20,49 +20,54 @@
 	</form-field-wrapper>
 </template>
 
-<script>
-    import TimepickerField from './private/TimepickerField.vue';
-    import FormField from './private/FormField.vue';
-    export default {
-        extends: { ...FormField },
-        name: 'TimeRange',
-        props: {
-			end: {
-				type: [String, Date],
-				required: true
-			},
-			endText: {
-				type: String,
-				default: 'End Time'
-			},
-			returnStringValue: {
-				type: Boolean,
-				default: true
-			},
-            start: {
-				type: [String, Date],
-				required: true
-			},
-			startText: {
-				type: String,
-				default: 'Start Time'
-			},
-        },
-        components: {
-            TimepickerField
-        },
-        methods: {
 
-			updateStartTime(time) {
-				this.$emit('update:start', time)
-			},
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
+import TimepickerField from './private/TimepickerField.vue';
 
-			updateEndTime(time) {
-				this.$emit('update:end', time)
-			}
+@Component({
+	name: 'TimeRange',
+	components: {
+		TimepickerField
+	}
+})
+export default class TimeRange extends BaseFormField {
 
-        }
-	};
+	/* Props
+	============================================*/
+
+	@Prop({type: [String, Date], required: true})
+	readonly end: string | Date;
+
+	@Prop({type: String, required: false, default: 'End Time'})
+	readonly endText: string;
+
+	@Prop({type: Boolean, required: false, default: true})
+	readonly returnStringValue: boolean = true;
+
+	@Prop({type: [String, Date], required: true})
+	readonly start: string | Date;
+
+	@Prop({type: String, required: false, default: 'Start Time'})
+	readonly startText: string;
+
+	@Prop({type: String, required: false})
+	readonly value: string;
+
+	/* Methods
+	============================================*/
+
+	updateStartTime(time: string | Date) {
+		this.$emit('update:start', time);
+	}
+
+	updateEndTime(time: string | Date) {
+		this.$emit('update:end', time);
+	}
+
+}
+
 </script>
 
 <style>

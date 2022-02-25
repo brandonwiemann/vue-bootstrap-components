@@ -1,6 +1,6 @@
 <template>
 	<transition name="vue-modal">
-		<div id="myModal" class="modal vue-bs-modal" role="dialog">
+		<div class="modal vue-bs-modal" role="dialog" @click.self="onClickSelf">
 			<div :class="['modal-dialog', 'modal-' + size]">
 				<div class="modal-content">
 					<div class="modal-header" v-if="title || $slots.header">
@@ -8,10 +8,13 @@
 						<h4 class="modal-title" v-if="title">{{title}}</h4>
 						<slot name="header"></slot>
 					</div>
-					<div class="modal-body">
+					<div class="modal-body" v-if="showBody">
 						<slot name="body"></slot>
 						<br/>
 						<error-message :error="error" />
+					</div>
+					<div class="modal-scroller" v-if="$slots.scroller">
+						<slot name="scroller"></slot>
 					</div>
 					<div class="modal-footer">
 						<slot name="footer">
@@ -24,44 +27,69 @@
 	</transition>
 </template>
 
-<script>
-	import ErrorMessage from './ErrorMessage.vue';
-	export default {
-		components: {
-			ErrorMessage
-		},
-		props: {
-			error: {
-				type: String,
-				default: null
-			},
-			className: {
-				default: "",
-				type: String
-			},
-			onCancel: {
-				type: Function,
-				required: false
-			},
-			size: {
-				default: "md",
-				type: String
-			},
-			title: String
-		},
-		methods: {
-			cancel() {
-				this.$emit('cancel');
-				if(this.onCancel) this.onCancel();
-            },
-		},
-		mounted() {
-            document.body.classList.add('modal-open');
-		},
-		beforeDestroy() {
-            document.body.classList.remove('modal-open');
-		}
+
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
+import ErrorMessage from '@/components/general/ErrorMessage.vue';
+
+@Component({
+	name: 'Modal',
+	components: {
+		ErrorMessage
 	}
+})
+export default class Modal extends Vue {
+
+	/* Props
+	============================================*/
+
+	@Prop({type: Boolean, required: false})
+	readonly closeOnClickSelf: boolean;
+
+	@Prop({type: Boolean, required: false, default: true})
+	readonly showBody: boolean;
+
+	@Prop({type: String, required: false, default: ''})
+	readonly error: string;
+
+	@Prop({type: String, required: false, default: ''})
+	readonly className: string;
+
+	@Prop({type: Function, required: false})
+	readonly onCancel: () => void;
+
+	@Prop({type: String, required: false, default: 'md'})
+	readonly size: string;
+
+	@Prop({type: String, required: false, default: ''})
+	readonly title: string;
+
+	/* Methods
+	============================================*/
+
+	cancel() {
+		this.$emit('cancel');
+		if(this.onCancel) this.onCancel();
+	}
+
+	onClickSelf() {
+		if(this.closeOnClickSelf) this.cancel();
+	}
+
+	/* Lifecycle Hooks
+	============================================*/
+
+	mounted() {
+		document.body.classList.add('modal-open');
+	}
+
+	beforeDestroy() {
+		document.body.classList.remove('modal-open');
+	}
+
+}
+
 </script>
 
 <style>

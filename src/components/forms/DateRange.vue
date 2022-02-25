@@ -28,74 +28,89 @@
 	</form-field-wrapper>
 </template>
 
-<script>
-	import DatepickerField from './private/DatepickerField';
-    import FormField from './private/FormField.vue';
 
-    export default {
-        extends: { ...FormField },
-        name: 'DateRange',
-        props: {
-			end: {
-				type: [String, Date],
-				required: true
-			},
-			endText: {
-				type: String,
-				default: 'End Date'
-			},
-            start: {
-				type: [String, Date],
-				required: true
-			},
-			startText: {
-				type: String,
-				default: 'Start Date'
-			},
-			disabledDates: {
-                default() {
-                    return {};
-                },
-                type: Object
-            },
-            format: String,
-            minDate: [String, Date],
-            maxDate: [String, Date]
-        },
-        components: {
-            DatepickerField
-		},
-        methods: {
-			updateStartDate(date) {
-				this.$emit('update:start', date)
-			},
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
+import DatepickerField from './private/DatepickerField.vue';
+import { AnyObject } from '@/types/generic';
 
-			updateEndDate(date) {
-				this.$emit('update:end', date)
-			},
+@Component({
+	name: 'DateRange',
+	components: {
+		DatepickerField
+	}
+})
+export default class DateRange extends BaseFormField {
 
-			validate() {
-				let self = this;
-				self.error = null;
-				return new Promise((resolve, reject) => {
-					self.$refs.startDateField.validate().then((isValid) => {
-						if (!isValid) {
-							this.error = self.$refs.startDateField.error;
-							return resolve(false);
-						}
-						self.$refs.endDateField.validate().then((isValid) => {
-							if (!isValid) {
-								this.error = self.$refs.endDateField.error;
-								return resolve(false);
-							}
-							return resolve(true);
-						});
-					});
+	$refs!: {
+		startDateField: DatepickerField;
+		endDateField: DatepickerField;
+	}
+
+	/* Props
+	============================================*/
+
+	@Prop({type: [String, Date], required: true})
+	readonly end: string | Date;
+
+	@Prop({type: String, required: false})
+	readonly endText: string;
+
+	@Prop({type: [String, Date], required: true})
+	readonly start: string | Date;
+
+	@Prop({type: String, required: false})
+	readonly startText: string;
+
+	@Prop({type: Object as () => AnyObject, required: false})
+	readonly disabledDates: AnyObject;
+
+	@Prop({type: String, required: false})
+	readonly format: string;
+
+	@Prop({type: [String, Date], required: false})
+	readonly maxDate: string | Date;
+
+	@Prop({type: [String, Date], required: false})
+	readonly minDate: string | Date;
+
+	@Prop({type: String, required: false})
+	readonly value: string;
+
+	/* Methods
+	============================================*/
+
+	updateStartDate(date: string | Date) {
+		this.$emit('update:start', date);
+	}
+
+	updateEndDate(date: string | Date) {
+		this.$emit('update:end', date);
+	}
+
+	validate(): Promise<boolean> {
+		let self = this;
+		self.error = null;
+		return new Promise((resolve) => {
+			self.$refs.startDateField.validate().then((isValid) => {
+				if (!isValid) {
+					this.error = self.$refs.startDateField.error;
+					return resolve(false);
+				}
+				self.$refs.endDateField.validate().then((isValid) => {
+					if (!isValid) {
+						this.error = self.$refs.endDateField.error;
+						return resolve(false);
+					}
+					return resolve(true);
 				});
-			}
-			
-		}
-	};
+			});
+		});
+	}
+
+}
+
 </script>
 
 <style>

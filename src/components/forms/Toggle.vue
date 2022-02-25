@@ -3,17 +3,19 @@
 		<div :class="['vue-ios-switch form-group', {'disabled': disabled}]">
 			<div v-if="!isHorizontal">
 				<input
-                    @change="$emit('input', !value)"
-                    type='checkbox' v-bind:id="id"
-                    v-bind:checked="value"
+					data-test="checkbox"
+					@change="$emit('input', !value)"
+					type='checkbox'
+					:id="id"
+					:checked="value"
 					:disabled="disabled"
-                    v-bind:class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
-                >
-				<label v-bind:for="id">
+					:class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
+				/>
+				<label :for="id">
 					<span v-if="label">{{ label }}</span>
 					<span v-if="!label">&nbsp;</span>
 				</label>
-				<span class="bf-helper-text" v-if="helpText">
+				<span class="bf-helper-text" v-if="helpText" data-test="help-text">
 					{{helpText}}
 				</span>
 			</div>
@@ -22,15 +24,17 @@
 				<div class="col-sm-9 horizontal">
 					<div>
 						<input
+							data-test="checkbox"
 							@change="$emit('input', !value)"
-							type='checkbox' v-bind:id="id"
-							v-bind:checked="value"
+							type='checkbox'
+							:id="id"
+							:checked="value"
 							:disabled="disabled"
-							v-bind:class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
-						>
-						<label v-bind:for="id">&nbsp;</label>
+							:class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
+						/>
+						<label :for="id">&nbsp;</label>
 					</div>
-					<div class="bf-helper-text bf-helper-below" v-if="helpText">
+					<div class="bf-helper-text bf-helper-below" v-if="helpText" data-test="help-text">
 						{{helpText}}
 					</div>
 				</div>
@@ -39,44 +43,42 @@
 	</div>
 </template>
 
-<script>
-	import FormField from './private/FormField.vue';
-	export default {
-		extends: {...FormField},
-		props: {
-			label: {
-				required: false,
-				type: String
-			},
-			size: {
-				required: false,
-				type: String
-			},
-			selected: {
-				default: false,
-				required: false,
-				type: [Boolean, Object]
-			},
-			color: {
-				default: "blue",
-				required: false,
-				type: String
-			},
-			horizontal: {
-				default: false,
-				type: Boolean
-			},
-			value: {
-                type: Boolean,
-                required: true
-            }
-		}
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
+import { AnyObject } from '@/types/generic';
+
+@Component({
+	name: 'Toggle',
+})
+export default class Toggle extends BaseFormField {
+
+	/* Props
+	============================================*/
+
+	@Prop({type: String, required: false, default: 'blue'})
+	readonly color: string;
+
+	@Prop({type: [Boolean, Object], required: false})
+	readonly selected: boolean | AnyObject;
+
+	@Prop({type: String, required: false, default: ''})
+	readonly size: string;
+
+	@Prop({type: Boolean, required: true})
+	readonly value: boolean;
+
+	validate(): Promise<boolean> {
+		return Promise.resolve(true);
 	}
+
+}
+
 </script>
 
 <style lang="less" scoped>
 	.vue-ios-switch {
-		height: 36px;
+		min-height: 36px;
 		&.disabled {
 			cursor: not-allowed;
 			opacity: 0.5;
@@ -90,11 +92,9 @@
 		user-select: none !important;
 	}
     input[type="checkbox"].ios-switch {
+		visibility: hidden;
         position: absolute;
         margin: 8px 0 0 16px;
-    }
-    .horizontal {
-        padding-top: 5px;
     }
     input[type="checkbox"].ios-switch + label {
         cursor: pointer;
@@ -199,10 +199,26 @@
     }
     input[type="checkbox"].ios-switch-lg:checked + label:after {
         margin-left: 20px; /* x*2 */
-    }
-</style>
+	}
 
-<style scoped>
+	.horizontal {
+		align-items: center;
+		padding-left: 12px;
+		display: flex;
+		position: relative;
+		top: 5px;
+
+		input[type="checkbox"].ios-switch {
+			height: 0px;
+			margin: 0;
+			padding: 0;
+		}
+
+		label {
+			height: 16px;
+		}
+    }
+
 	.bf-helper-text {
 		color: #999999;
 		font-size: 12px;

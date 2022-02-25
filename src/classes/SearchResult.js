@@ -1,4 +1,5 @@
-import { dynamicSort, jsonCopy } from '../helpers/functions';
+import { jsonCopy } from '../helpers/json.helpers';
+import { dynamicSort } from '../helpers/sorting.helpers';
 
 export default class SearchResult {
 
@@ -14,7 +15,7 @@ export default class SearchResult {
 				columnName: '',
 				orderByDescending: false
 			}
-		}
+		};
 		if(typeof obj === 'object') {
 			for (let prop in obj) {
 				if(this[prop] !== undefined) {
@@ -26,17 +27,17 @@ export default class SearchResult {
 
 	getResults(data) {
 		if(!Array.isArray(data)) {
-			throw "data argument must be an array of objects";
+			throw 'data argument must be an array of objects';
 		}
 
 		if(!data.length) return;
 
 		if(typeof data[0] !== 'object') {
-			throw "data argument must be an array of objects";
+			throw 'data argument must be an array of objects';
 		}
 
 		if(data.length > 10000) {
-			console.warn('A large array was passed to SearchResult.getResults(). This can result in slow performance')
+			console.warn('A large array was passed to SearchResult.getResults(). This can result in slow performance');
 		}
 
 		data = jsonCopy(data);
@@ -98,4 +99,4 @@ export default class SearchResult {
 		if(this.query.resultsPerPage < data.length) data.length = this.query.resultsPerPage;
 		return data;
 	}
-};
+}

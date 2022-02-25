@@ -1,44 +1,101 @@
 <template>
-    <div v-bind:class="['form-group', {'has-error': showError}]">
-        <label v-bind:for="id" v-if="label && !hideLabel" v-bind:class="{'control-label col-sm-3': isHorizontal}">
-            {{label}}<span v-if="required" class="form-field-required">*</span>
-            <span class="bf-helper-text bf-helper-label" v-if="helpText && !isHorizontal">
-                {{helpText}}
-            </span>
-        </label>
-        <div v-bind:class="horizontalClass">
-            <slot></slot>
-            <div class="bf-helper-text bf-helper-below" v-if="helpText && isHorizontal">
-                {{helpText}}
-            </div>
-            <p class="text-danger" v-if="showError">{{error}}</p>
-        </div>
-    </div>
+	<div :class="['form-group', {'has-error': showError}]" data-test="form-field-wrapper">
+		<label :for="id" v-if="label && !hideLabel" :class="{'control-label col-sm-3': isHorizontal}">
+			{{label}}<span v-if="required" class="form-field-required">*</span>
+			<span class="bf-helper-text bf-helper-label" v-if="helpText && !isHorizontal">
+				{{helpText}}
+			</span>
+		</label>
+		<div :class="horizontalClass">
+			<slot></slot>
+			<div class="bf-helper-text bf-helper-below" v-if="helpText && isHorizontal">
+				{{helpText}}
+			</div>
+			<p class="text-danger" v-if="showError">{{error}}</p>
+		</div>
+	</div>
 </template>
 
-<script>
-export default {
-    name: 'FormFieldWrapper',
-    props: {
-		colSize: String,
-        error: String,
-		helpText: String,
-		hideLabel: Boolean,
-        isHorizontal: Boolean,
-        id: String,
-        label: String,
-		showError: Boolean,
-		required: Boolean
-	},
-	computed: {
-		horizontalClass() {
-			if(!this.isHorizontal) return null;
-			if(!this.colSize) return 'col-sm-9';
-			return `col-sm-${this.colSize}`;
-		}
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
+
+@Component({
+	name: 'FormFieldWrapper',
+})
+export default class FormFieldWrapper extends Vue {
+
+	/* Props
+	============================================*/
+
+	/**
+	 * The bootstrap column size
+	 */
+	@Prop({type: String, required: false})
+	readonly colSize: string;
+
+	/**
+	 * An error message to display below the field
+	 */
+	@Prop({type: String, required: false})
+	readonly error: string;
+
+	/**
+	 * Supplemental text to display near field label
+	 */
+	@Prop({type: String, required: false})
+	readonly helpText: string;
+
+	/**
+	 * Hides the field label when true
+	 */
+	@Prop({type: Boolean, required: false})
+	readonly hideLabel: boolean;
+
+	/**
+	 * Field label is horizontally aligned with input when true
+	 */
+	@Prop({type: Boolean, required: false})
+	readonly isHorizontal: boolean
+
+	/**
+	 * The id of the input field
+	 */
+	@Prop({type: String, required: false})
+	readonly id: string
+
+	/**
+	 * The field label
+	 */
+	@Prop({type: String, required: false})
+	readonly label: string
+
+	/**
+	 * Whether or not the wrapped input is required
+	 */
+	@Prop({type: Boolean, required: false})
+	readonly required: boolean
+
+	/**
+	 * Adds error class and displays error when true
+	 */
+	@Prop({type: Boolean, required: false})
+	readonly showError: boolean
+
+
+	/* Computed
+	============================================*/
+
+	get horizontalClass(): string | null {
+		if(!this.isHorizontal) return null;
+		if(!this.colSize) return 'col-sm-9';
+		return `col-sm-${this.colSize}`;
 	}
+
 }
+
 </script>
+
 
 <style scoped>
 	.bf-helper-text {

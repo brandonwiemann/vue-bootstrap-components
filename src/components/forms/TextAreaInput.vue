@@ -1,34 +1,43 @@
 ﻿<template>
 	<form-field-wrapper v-bind="wrapperProps">
-        <textarea
-            class="form-control"
-            v-bind:id="id"
-            v-bind:value="value"
-            v-bind:disabled="disabled"
-            v-bind:readonly="readonly"
-            v-bind:rules="rules"
-			v-bind:rows="rows"
+		<textarea
+			data-test="input"
+			class="form-control"
+			:id="id"
+			:value="value"
+			:disabled="disabled"
+			:readonly="readonly"
+			:rules="rules"
+			:rows="rows"
 			v-bind="$attrs"
-            v-on="inputListeners"
-        >
+			v-on="inputListeners"
+		>
         </textarea>
 	</form-field-wrapper>
 </template>
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
 
-<script>
-    import FormField from './private/FormField.vue';
-	export default {
-        extends: { ...FormField },
-		props: {
-            maxLength: Number,
-            minLength: Number,
-			rows: {
-				default: 5,
-				required: false,
-				type: Number
-			}
-		}
-	};
+@Component({
+	name: 'TextAreaInput',
+})
+export default class TextAreaInput extends BaseFormField {
+
+	/* Props
+	============================================*/
+
+	@Prop({type: Number, required: false})
+	readonly maxLength: number;
+
+	@Prop({type: Number, required: false})
+	readonly minLength: number;
+
+	@Prop({type: Number, required: false, default: 5})
+	readonly rows: number;
+
+}
+
 </script>
 
 <style scoped>

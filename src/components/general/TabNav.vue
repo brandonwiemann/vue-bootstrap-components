@@ -5,7 +5,7 @@
 			<li
 				:class="{'active': activeTab === tab}"
 				v-for="tab in values"
-				v-on:click.stop="setActiveTab(tab)"
+				@click.stop="setActiveTab(tab)"
 				:key="tab"
 			>
 				<a href="javascript:void(0)">{{tab}}</a>
@@ -14,10 +14,14 @@
 	</div>
 </template>
 
-<script>
+
+<script lang="ts">
+import { Component } from 'vue-property-decorator';
 import PillNav from './PillNav.vue';
-export default {
-	extends: { ...PillNav },
+
+@Component({
 	name: 'TabNav',
-}
+})
+export default class TabNav extends PillNav {}
+
 </script>

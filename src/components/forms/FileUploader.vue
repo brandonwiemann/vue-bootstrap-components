@@ -4,7 +4,13 @@
 			<div class="file-uploader-area">
 				<form class="box" method="post" action="" enctype="multipart/form-data">
 					<div class="box-input">
-						<input class="input-file" type="file" name="files[]" :id="id" :accept="fileType" v-on:change="changeFile" />
+						<input
+							class="input-file"
+							type="file"
+							name="files[]"
+							:id="id"
+							:accept="fileType"
+							@change="changeFile" />
 						<label :for="id">
 							<form-button
 								:loading="uploading"
@@ -22,61 +28,75 @@
 	</form-field-wrapper>
 </template>
 
-<script>
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
 import FormButton from './FormButton.vue';
-import FormField from './private/FormField.vue';
-import FormFieldWrapper from './private/FormFieldWrapper.vue';
+import { FormInputEvent } from '../../types/forms';
 
-export default {
-	extends: { ...FormField },
+@Component({
 	name: 'FileUploader',
 	components: {
-		FormButton,
-		FormFieldWrapper
-	},
-	props: {
-		buttonText: {
-			default: 'Upload File',
-			type: String
-		},
-		maxKb: Number,
-		fileType: String
-	},
-	computed: {
-		buttonLabel() {
-			if(this.buttonText !== 'Upload File') return this.buttonText;
-			if(this.fileName) return 'Upload New File';
-			return 'Upload File';
-		}
-	},
-	data() {
-		return {
-			error: null,
-			fileName: this.value ? this.value.split('/').pop() : null,
-			uploading: false
-		}
-    },
-	methods: {
-		changeFile(event) {
-			if(!event) return;
-			let file = event.target.files[0];
-			if(!file || !file.name) return;
-			this.fileName = file.name;
-			this.$emit('fileAdded', file);
-		},
+		FormButton
+	}
+})
+export default class FileUploader extends BaseFormField {
 
-        validate() {
-			return new Promise((resolve, reject) => {
-				this.error = null;
-				if(!this.rules) resolve(true);
-				if(this.isRequired && !this.fileName) {
-					this.error = "Required";
-				}
-				resolve(!this.error);
-			});
-        }
-    }
+	/* Props
+	============================================*/
+
+	@Prop({type: String, required: false, default: 'Upload File'})
+	readonly buttonText: string;
+
+	@Prop({type: Number, required: false})
+	readonly maxKb: number;
+
+	@Prop({type: String, required: false})
+	readonly fileType: string;
+
+	@Prop({type: String, required: true})
+	readonly value: string;
+
+	/* Data
+	============================================*/
+
+	error: string | null = null;
+	fileName?: string | null = this.value?.split('/').pop() ?? null;
+	uploading: boolean = false;
+
+	/* Computed
+	============================================*/
+
+	get buttonLabel(): string {
+		if(this.buttonText !== 'Upload File') return this.buttonText;
+		if(this.fileName) return 'Upload New File';
+		return 'Upload File';
+	}
+
+	/* Methods
+	============================================*/
+
+	changeFile(event: FormInputEvent) {
+		if(!event?.target?.files) return;
+		let file = (event?.target?.files || [null])[0];
+		if(!file?.name) return;
+		this.fileName = file.name;
+		this.$emit('fileAdded', file);
+	}
+
+	validate(): Promise<boolean> {
+		return new Promise((resolve) => {
+			this.error = null;
+			if(!this.rules) resolve(true);
+			if(this.isRequired && !this.fileName) {
+				this.error = 'Required';
+			}
+			resolve(!this.error);
+		});
+	}
+
 }
+
 </script>
 
 <style scoped>

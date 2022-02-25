@@ -11,7 +11,7 @@ export { default as ErrorMessage } from './general/ErrorMessage.vue';
 export { default as ExpandableSlot } from './general/ExpandableSlot.vue';
 export { default as FileUploader } from './forms/FileUploader.vue';
 export { default as FormButton } from './forms/FormButton.vue';
-export { default as ImageCompressorModal } from './images/ImageCompressorModal.vue';
+export { default as ImageCompressorModal } from './general/ImageCompressorModal.vue';
 export { default as ImageUploader } from './forms/ImageUploader.vue';
 export { default as Modal } from './general/Modal.vue';
 export { default as MultiSelect } from './forms/MultiSelect.vue';

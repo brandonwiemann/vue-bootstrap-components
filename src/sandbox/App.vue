@@ -7,7 +7,7 @@
 <script>
 import FormTest from './FormTest.vue';
 export default {
-	name: "app",
+	name: 'app',
 	components: {
 		FormTest
 	},
@@ -32,7 +32,7 @@ export default {
 			let success = true;
 			this.isSaving = false;
 			if (success) {
-					this.$emit('cancel');
+				this.$emit('cancel');
 			}
 		}
 	}
@@ -41,6 +41,9 @@ export default {
 </script>
 
 <style>
+	html {
+		font-size: 16px;
+	}
 	.admin-form-test {
 		background-color: #f1f1f1;
 		border: solid 1px #AAA;

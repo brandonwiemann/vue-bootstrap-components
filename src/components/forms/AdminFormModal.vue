@@ -1,7 +1,8 @@
 <template>
 	<modal
 		:title="title"
-		v-on:cancel="$emit('cancel')"
+		:size="size"
+		@cancel="$emit('cancel')"
 	>
 		<div slot="body">
 			<admin-form
@@ -17,7 +18,7 @@
 			<slot name="buttons">
 				<form-button
 					v-if="showDeleteButton"
-					v-on:click="$emit('delete')"
+					@click="$emit('delete')"
 					customClass="btn-danger pull-left"
 					icon="trash-o"
 					:buttonText="deleteText"
@@ -26,7 +27,7 @@
 				/>
 				<form-button
 					:buttonText="cancelText"
-					v-on:click="$emit('cancel')"
+					@click="$emit('cancel')"
 				/>
 				<form-button
 					customClass="btn-success"
@@ -34,49 +35,71 @@
 					icon="check"
 					:loading="submitting"
 					:loadingText="submittingText"
-					v-on:click="$refs._form.submit()"
+					@click="$refs._form.submit()"
 				/>
 			</slot>
 		</div>
 	</modal>
 </template>
 
-<script>
+
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
 import AdminForm from './AdminForm.vue';
 import Modal from '../general/Modal.vue';
-export default {
+import FormButton from '@/components/forms/FormButton.vue';
+
+@Component({
 	name: 'AdminFormModal',
-	props: {
-		cancelText: {
-			type: String,
-			default: 'Cancel'
-		},
-		deleteText: {
-			type: String,
-			default: 'Delete'
-		},
-		deleting: Boolean,
-		deletingText: {
-			type: String,
-			default: 'Deleting...'
-		},
-		horizontal: Boolean,
-        options: Object,
-		submitText: {
-			type: String,
-			default: 'Submit'
-		},
-		submitting: Boolean,
-		submittingText: {
-			type: String,
-			default: 'Submitting...'
-		},
-		showDeleteButton: Boolean,
-		title: String
-	},
 	components: {
 		AdminForm,
+		FormButton,
 		Modal
 	}
+})
+export default class AdminFormModal extends Vue {
+
+	$refs!: {
+		_form: AdminForm;
+	}
+
+	/* Props
+	============================================*/
+
+	@Prop({type: String, required: false, default: 'Cancel'})
+	readonly cancelText: string;
+
+	@Prop({type: String, required: false, default: 'Delete'})
+	readonly deleteText: string;
+
+	@Prop({type: Boolean, required: false})
+	readonly deleting: boolean;
+
+	@Prop({type: String, required: false, default: 'Deleting...'})
+	readonly deletingText: string;
+
+	@Prop({type: Boolean, required: false})
+	readonly horizontal: boolean;
+
+	@Prop({type: String, required: false, default: 'Submit'})
+	readonly submitText: string;
+
+	@Prop({type: Boolean, required: false})
+	readonly submitting: boolean;
+
+	@Prop({type: String, required: false, default: 'Submitting...'})
+	readonly submittingText: string;
+
+	@Prop({type: Boolean, required: false})
+	readonly showDeleteButton: boolean;
+
+	@Prop({type: String, required: false})
+	readonly title: string;
+
+	@Prop({type: String, required: false, default: 'md'})
+	readonly size: string;
+
 }
+
 </script>

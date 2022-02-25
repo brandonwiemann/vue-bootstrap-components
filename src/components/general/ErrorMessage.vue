@@ -4,15 +4,24 @@
 	</div>
 </template>
 
-<script>
-	export default {
-		name: 'ErrorMessage',
-		props: {
-			error: String
-		},
-	}
-</script>
+<script lang="ts">
+import Vue from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
 
+@Component({
+	name: 'ErrorMessage',
+})
+export default class ErrorMessage extends Vue {
+
+	/* Props
+	============================================*/
+
+	@Prop({type: String, required: false, default: ''})
+	readonly error: string;
+
+}
+
+</script>
 <style scoped>
 	.vue-error {
 		align-items: center;

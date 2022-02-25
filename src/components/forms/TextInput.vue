@@ -1,20 +1,28 @@
 ﻿<template>
-    <form-field-wrapper v-bind="wrapperProps">
-        <input
-            class="form-control"
-            v-bind:id="id"
-            v-bind:value="value"
-            v-bind:disabled="disabled"
-            v-bind:readonly="readonly"
+	<form-field-wrapper v-bind="wrapperProps">
+		<input
+			data-test="input"
+			class="form-control"
+			:id="id"
+			:value="value"
+			:disabled="disabled"
+			:readonly="readonly"
 			v-bind="$attrs"
-            v-on="inputListeners"
-        />
-    </form-field-wrapper>
+			v-on="inputListeners"
+		/>
+	</form-field-wrapper>
 </template>
 
-<script>
-    import FormField from './private/FormField.vue';
-	export default {
-		extends: { ...FormField }
-	}
+<script lang="ts">
+import { Component } from 'vue-property-decorator';
+import BaseFormField from './private/BaseFormField.vue';
+
+/**
+ * A standard text input field
+ */
+@Component({
+	name: 'TextInput',
+})
+export default class TextInput extends BaseFormField {}
+
 </script>
