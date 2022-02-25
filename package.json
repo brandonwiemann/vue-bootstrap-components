@@ -1,7 +1,7 @@
 {
   "name": "vue-bootstrap-components",
   "version": "2.5.53",
-  "description": "A collection of vue components for building forms and CMS tools",
+  "description": "A personal bootstrap-based Vue.js component library and sandbox",
   "author": "Brandon Wiemann <me@brandonwiemann.com>",
   "scripts": {
     "serve": "vue-cli-service serve src/sandbox/app.ts",
