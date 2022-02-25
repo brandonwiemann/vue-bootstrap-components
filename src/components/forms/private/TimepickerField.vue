@@ -1,181 +1,181 @@
 <template>
-	<div class="p-timepicker" @click.stop="() => null">
-		<div class="selectors">
-			<select
-				v-model="hour"
-				class="list"
-				@change="updateTime"
-				:disabled="disabled"
-			>
-				<option v-for="hour in hours" :value="hour" :key="hour">{{
-					hour
-				}}</option>
-			</select>
-			<span>:</span>
-			<select
-				v-model="minute"
-				class="list"
-				@change="updateTime"
-				:disabled="disabled"
-			>
-				<option v-for="min in minutes" :value="min" :key="min">{{
-					min
-				}}</option>
-			</select>
-			<select
-				v-model="ampm"
-				class="list ampm"
-				@change="updateTime"
-				:disabled="disabled"
-			>
-				<option value="AM">AM</option>
-				<option value="PM">PM</option>
-			</select>
-		</div>
-	</div>
+    <div class="p-timepicker" @click.stop="() => null">
+        <div class="selectors">
+            <select
+                v-model="hour"
+                class="list"
+                @change="updateTime"
+                :disabled="disabled"
+            >
+                <option v-for="hour in hours" :value="hour" :key="hour">{{
+                    hour
+                }}</option>
+            </select>
+            <span>:</span>
+            <select
+                v-model="minute"
+                class="list"
+                @change="updateTime"
+                :disabled="disabled"
+            >
+                <option v-for="min in minutes" :value="min" :key="min">{{
+                    min
+                }}</option>
+            </select>
+            <select
+                v-model="ampm"
+                class="list ampm"
+                @change="updateTime"
+                :disabled="disabled"
+            >
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+            </select>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch } from 'vue-property-decorator';
 import BaseFormField from './BaseFormField.vue';
-import { parseTimeString, formatDate, getDateObject } from '@/helpers/datetime.helpers';
+import { Component, Prop, Watch } from 'vue-property-decorator';
+import { formatDate, getDateObject, parseTimeString } from '@/helpers/datetime.helpers';
 import { jsonEquals } from '@/helpers/json.helpers';
 
 @Component({
-	name: 'TimepickerField'
+    name: 'TimepickerField'
 })
 export default class TimepickerField extends BaseFormField {
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({ type: String, required: false })
-	readonly format: string;
+    @Prop({ type: String, required: false })
+    readonly format: string;
 
-	@Prop({ type: Number, required: false })
-	readonly maxHour: number;
+    @Prop({ type: Number, required: false })
+    readonly maxHour: number;
 
-	@Prop({ type: Number, required: false })
-	readonly minHour: number;
+    @Prop({ type: Number, required: false })
+    readonly minHour: number;
 
-	@Prop({ type: Number, required: false })
-	readonly maxMinute: number;
+    @Prop({ type: Number, required: false })
+    readonly maxMinute: number;
 
-	@Prop({ type: Number, required: false })
-	readonly minMinute: number;
+    @Prop({ type: Number, required: false })
+    readonly minMinute: number;
 
-	@Prop({ type: Boolean, required: false })
-	readonly returnStringValue: boolean;
+    @Prop({ type: Boolean, required: false })
+    readonly returnStringValue: boolean;
 
-	@Prop({ type: [String, Date], required: true })
-	readonly value: string | Date;
+    @Prop({ type: [String, Date], required: true })
+    readonly value: string | Date;
 
-	/* Computed
+    /* Computed
 	============================================*/
 
-	get hours(): string[] {
-		let hours = [];
-		for (let i = 1; i < 12; i++) {
-			hours.push(i.toString());
-		}
-		return hours;
-	}
+    get hours(): string[] {
+        const hours = [];
+        for (let i = 1; i < 12; i++) {
+            hours.push(i.toString());
+        }
+        return hours;
+    }
 
-	get minutes(): string[] {
-		let minutes = [];
-		for (let i = 0; i < 60; i += 5) {
-			let min = i < 10 ? '0' + i : i.toString();
-			minutes.push(min);
-		}
-		return minutes;
-	}
+    get minutes(): string[] {
+        const minutes = [];
+        for (let i = 0; i < 60; i += 5) {
+            const min = i < 10 ? '0' + i : i.toString();
+            minutes.push(min);
+        }
+        return minutes;
+    }
 
-	get timeString(): string {
-		return `${this.hour}:${this.minute} ${this.ampm}`;
-	}
+    get timeString(): string {
+        return `${this.hour}:${this.minute} ${this.ampm}`;
+    }
 
-	/* Data
+    /* Data
 	============================================*/
 
-	ampm: string = 'AM';
-	hour: string = '12';
-	minute: string = '00';
-	timeOnly: boolean = false;
+    ampm: string = 'AM';
+    hour: string = '12';
+    minute: string = '00';
+    timeOnly: boolean = false;
 
-	/* Methods
+    /* Methods
 	============================================*/
 
-	parseTimeString(time: string): boolean {
-		let parsedTime = parseTimeString(time);
-		if(parsedTime == null) return false;
-		this.hour = parsedTime.hour;
-		this.minute = parsedTime.minute;
-		this.ampm = parsedTime.ampm;
-		this.timeOnly = true;
-		return true;
-	}
+    parseTimeString(time: string): boolean {
+        const parsedTime = parseTimeString(time);
+        if (parsedTime == null) return false;
+        this.hour = parsedTime.hour;
+        this.minute = parsedTime.minute;
+        this.ampm = parsedTime.ampm;
+        this.timeOnly = true;
+        return true;
+    }
 
-	setAmPm(date: Date) {
-		let hour = date.getHours();
-		this.ampm = hour >= 12 ? 'PM' : 'AM';
-	}
+    setAmPm(date: Date) {
+        const hour = date.getHours();
+        this.ampm = hour >= 12 ? 'PM' : 'AM';
+    }
 
-	setHour(date: Date) {
-		let hour = date.getHours();
-		if(hour >= 12) hour = hour - 12;
-		this.hour = hour.toString();
-	}
+    setHour(date: Date) {
+        let hour = date.getHours();
+        if (hour >= 12) hour = hour - 12;
+        this.hour = hour.toString();
+    }
 
-	setMinute(date: Date) {
-		let minute = Math.floor(date.getMinutes() / 5) * 5;
-		this.minute = minute < 10 ? '0' + minute : minute.toString();
-	}
+    setMinute(date: Date) {
+        const minute = Math.floor(date.getMinutes() / 5) * 5;
+        this.minute = minute < 10 ? '0' + minute : minute.toString();
+    }
 
-	updateTime() {
-		if (this.returnStringValue || this.timeOnly) {
-			this.$emit('input', this.timeString);
-		} else {
-			let dateStr = formatDate(this.value);
-			if (!dateStr) return null;
-			dateStr = `${dateStr} ${this.timeString}`;
-			let newDate = new Date(dateStr);
-			newDate.setTime(newDate.getTime());
-			this.$emit('input', newDate);
-		}
-	}
+    updateTime() {
+        if (this.returnStringValue || this.timeOnly) {
+            this.$emit('input', this.timeString);
+        } else {
+            let dateStr = formatDate(this.value);
+            if (!dateStr) return null;
+            dateStr = `${dateStr} ${this.timeString}`;
+            const newDate = new Date(dateStr);
+            newDate.setTime(newDate.getTime());
+            this.$emit('input', newDate);
+        }
+    }
 
-	updateInitialValues() {
-		if (!this.value) return;
-		if (typeof this.value === 'string' && this.parseTimeString(this.value)) {
-			return this.updateTime();
-		}
-		let date = getDateObject(this.value);
-		if (!date) return;
-		this.setHour(date);
-		this.setMinute(date);
-		this.setAmPm(date);
-		this.updateTime();
-	}
+    updateInitialValues() {
+        if (!this.value) return;
+        if (typeof this.value === 'string' && this.parseTimeString(this.value)) {
+            return this.updateTime();
+        }
+        const date = getDateObject(this.value);
+        if (!date) return;
+        this.setHour(date);
+        this.setMinute(date);
+        this.setAmPm(date);
+        this.updateTime();
+    }
 
-	validate() {
-		return Promise.resolve(true);
-	}
+    validate() {
+        return Promise.resolve(true);
+    }
 
-	/* Lifecycle Hooks
+    /* Lifecycle Hooks
 	============================================*/
 
-	mounted() {
-		this.updateInitialValues();
-	}
+    mounted() {
+        this.updateInitialValues();
+    }
 
-	/* Watchers
+    /* Watchers
 	============================================*/
 
-	@Watch('value')
-	onValueChange(newVal: any, oldVal: any) {
-		if (!jsonEquals(newVal, oldVal)) {
-			this.updateInitialValues();
-		}
-	}
+    @Watch('value')
+    onValueChange(newVal: any, oldVal: any) {
+        if (!jsonEquals(newVal, oldVal)) {
+            this.updateInitialValues();
+        }
+    }
 }
 </script>
 

@@ -1,7 +1,7 @@
-export function jsonCopy(obj: any) {
-	return JSON.parse(JSON.stringify(obj));
+export function jsonCopy<T>(obj: T): T  {
+    return JSON.parse(JSON.stringify(obj));
 }
 
-export function jsonEquals(a: any, b: any) {
-	return JSON.stringify(a) === JSON.stringify(b);
+export function jsonEquals(a: any, b: any): boolean {
+    return JSON.stringify(a) === JSON.stringify(b);
 }

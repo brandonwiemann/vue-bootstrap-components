@@ -1,92 +1,92 @@
 <template>
-	<transition name="vue-modal">
-		<div class="modal vue-bs-modal" role="dialog" @click.self="onClickSelf">
-			<div :class="['modal-dialog', 'modal-' + size]">
-				<div class="modal-content">
-					<div class="modal-header" v-if="title || $slots.header">
-						<button type="button" class="close" @click="$emit('cancel')">&times;</button>
-						<h4 class="modal-title" v-if="title">{{title}}</h4>
-						<slot name="header"></slot>
-					</div>
-					<div class="modal-body" v-if="showBody">
-						<slot name="body"></slot>
-						<br/>
-						<error-message :error="error" />
-					</div>
-					<div class="modal-scroller" v-if="$slots.scroller">
-						<slot name="scroller"></slot>
-					</div>
-					<div class="modal-footer">
-						<slot name="footer">
-							<button type="button" class="btn btn-default" @click="$emit('cancel')">Close</button>
-						</slot>
-					</div>
-				</div>
-			</div>
-		</div>
-	</transition>
+    <transition name="vue-modal">
+        <div class="modal vue-bs-modal" role="dialog" @click.self="onClickSelf">
+            <div :class="['modal-dialog', 'modal-' + size]">
+                <div class="modal-content">
+                    <div class="modal-header" v-if="title || $slots.header">
+                        <button type="button" class="close" @click="$emit('cancel')">&times;</button>
+                        <h4 class="modal-title" v-if="title">{{title}}</h4>
+                        <slot name="header"></slot>
+                    </div>
+                    <div class="modal-body" v-if="showBody">
+                        <slot name="body"></slot>
+                        <br />
+                        <error-message :error="error" />
+                    </div>
+                    <div class="modal-scroller" v-if="$slots.scroller">
+                        <slot name="scroller"></slot>
+                    </div>
+                    <div class="modal-footer">
+                        <slot name="footer">
+                            <button type="button" class="btn btn-default" @click="$emit('cancel')">Close</button>
+                        </slot>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
 </template>
 
 
 <script lang="ts">
+import ErrorMessage from '@/components/general/ErrorMessage.vue';
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
-import ErrorMessage from '@/components/general/ErrorMessage.vue';
 
 @Component({
-	name: 'Modal',
-	components: {
-		ErrorMessage
-	}
+    name: 'Modal',
+    components: {
+        ErrorMessage
+    }
 })
 export default class Modal extends Vue {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({type: Boolean, required: false})
-	readonly closeOnClickSelf: boolean;
+    @Prop({ type: Boolean, required: false })
+    readonly closeOnClickSelf: boolean;
 
-	@Prop({type: Boolean, required: false, default: true})
-	readonly showBody: boolean;
+    @Prop({ type: Boolean, required: false, default: true })
+    readonly showBody: boolean;
 
-	@Prop({type: String, required: false, default: ''})
-	readonly error: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly error: string;
 
-	@Prop({type: String, required: false, default: ''})
-	readonly className: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly className: string;
 
-	@Prop({type: Function, required: false})
-	readonly onCancel: () => void;
+    @Prop({ type: Function, required: false })
+    readonly onCancel: () => void;
 
-	@Prop({type: String, required: false, default: 'md'})
-	readonly size: string;
+    @Prop({ type: String, required: false, default: 'md' })
+    readonly size: string;
 
-	@Prop({type: String, required: false, default: ''})
-	readonly title: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly title: string;
 
-	/* Methods
+    /* Methods
 	============================================*/
 
-	cancel() {
-		this.$emit('cancel');
-		if(this.onCancel) this.onCancel();
-	}
+    cancel() {
+        this.$emit('cancel');
+        if (this.onCancel) this.onCancel();
+    }
 
-	onClickSelf() {
-		if(this.closeOnClickSelf) this.cancel();
-	}
+    onClickSelf() {
+        if (this.closeOnClickSelf) this.cancel();
+    }
 
-	/* Lifecycle Hooks
+    /* Lifecycle Hooks
 	============================================*/
 
-	mounted() {
-		document.body.classList.add('modal-open');
-	}
+    mounted() {
+        document.body.classList.add('modal-open');
+    }
 
-	beforeDestroy() {
-		document.body.classList.remove('modal-open');
-	}
+    beforeDestroy() {
+        document.body.classList.remove('modal-open');
+    }
 
 }
 

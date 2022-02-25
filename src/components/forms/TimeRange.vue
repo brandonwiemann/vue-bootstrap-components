@@ -1,70 +1,70 @@
 <template>
-	<form-field-wrapper v-bind="wrapperProps">
-		<div class="time-range">
-			<timepicker-field
-				:returnStringValue="returnStringValue"
-				class="tr tr-left"
-				:value="start"
-				@input="updateStartTime"
-				:placeholder="startText"
-			/>
-			<div class="tr-middle">to</div>
-			<timepicker-field
-				:returnStringValue="returnStringValue"
-				class="tr tr-right"
-				:value="end"
-				@input="updateEndTime"
-				:placeholder="endText"
-			/>
-		</div>
-	</form-field-wrapper>
+    <form-field-wrapper v-bind="wrapperProps">
+        <div class="time-range">
+            <timepicker-field
+                :returnStringValue="returnStringValue"
+                class="tr tr-left"
+                :value="start"
+                @input="updateStartTime"
+                :placeholder="startText"
+            />
+            <div class="tr-middle">to</div>
+            <timepicker-field
+                :returnStringValue="returnStringValue"
+                class="tr tr-right"
+                :value="end"
+                @input="updateEndTime"
+                :placeholder="endText"
+            />
+        </div>
+    </form-field-wrapper>
 </template>
 
 
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator';
 import BaseFormField from './private/BaseFormField.vue';
 import TimepickerField from './private/TimepickerField.vue';
+import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
-	name: 'TimeRange',
-	components: {
-		TimepickerField
-	}
+    name: 'TimeRange',
+    components: {
+        TimepickerField
+    }
 })
 export default class TimeRange extends BaseFormField {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({type: [String, Date], required: true})
-	readonly end: string | Date;
+    @Prop({ type: [String, Date], required: true })
+    readonly end: string | Date;
 
-	@Prop({type: String, required: false, default: 'End Time'})
-	readonly endText: string;
+    @Prop({ type: String, required: false, default: 'End Time' })
+    readonly endText: string;
 
-	@Prop({type: Boolean, required: false, default: true})
-	readonly returnStringValue: boolean = true;
+    @Prop({ type: Boolean, required: false, default: true })
+    readonly returnStringValue: boolean = true;
 
-	@Prop({type: [String, Date], required: true})
-	readonly start: string | Date;
+    @Prop({ type: [String, Date], required: true })
+    readonly start: string | Date;
 
-	@Prop({type: String, required: false, default: 'Start Time'})
-	readonly startText: string;
+    @Prop({ type: String, required: false, default: 'Start Time' })
+    readonly startText: string;
 
-	@Prop({type: String, required: false})
-	readonly value: string;
+    @Prop({ type: String, required: false })
+    readonly value: string;
 
-	/* Methods
+    /* Methods
 	============================================*/
 
-	updateStartTime(time: string | Date) {
-		this.$emit('update:start', time);
-	}
+    updateStartTime(time: string | Date) {
+        this.$emit('update:start', time);
+    }
 
-	updateEndTime(time: string | Date) {
-		this.$emit('update:end', time);
-	}
+    updateEndTime(time: string | Date) {
+        this.$emit('update:end', time);
+    }
 
 }
 

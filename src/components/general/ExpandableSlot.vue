@@ -1,28 +1,28 @@
 <template>
-	<div class="exs-item">
-		<div :class="['exs-item-collapsed flex-row flex-between', {'exs-open': open}]" @click="$emit('open')">
-			<div class="flex-row">
-				<div v-if="image" class="exs-image">
-					<img :src="image" />
-				</div>
-				<div>{{name}}</div>
-			</div>
-			<div>
-				<span class="pull-right exs-delete" @click.stop="$emit('delete')" v-if="showDelete">
-					<i class="fas fa fa-times"></i> Delete
-				</span>
-				<span class="pull-right exs-reorder" v-if="showReorder">
-					<i class="fas fa fa-arrows-v"></i> Reorder
-				</span>
-				<span class="pull-right exs-edit" v-if="showEdit" @click.stop="$emit('edit')">
-					<i class="fas fa fa-pencil"></i> Edit
-				</span>
-			</div>
-		</div>
-		<div v-if="open" class="exs-item-content">
-			<slot></slot>
-		</div>
-	</div>
+    <div class="exs-item">
+        <div :class="['exs-item-collapsed flex-row flex-between', {'exs-open': open}]" @click="$emit('open')">
+            <div class="flex-row">
+                <div v-if="image" class="exs-image">
+                    <img :src="image" />
+                </div>
+                <div>{{name}}</div>
+            </div>
+            <div>
+                <span class="pull-right exs-delete" @click.stop="$emit('delete')" v-if="showDelete">
+                    <i class="fas fa fa-times"></i> Delete
+                </span>
+                <span class="pull-right exs-reorder" v-if="showReorder">
+                    <i class="fas fa fa-arrows-v"></i> Reorder
+                </span>
+                <span class="pull-right exs-edit" v-if="showEdit" @click.stop="$emit('edit')">
+                    <i class="fas fa fa-pencil"></i> Edit
+                </span>
+            </div>
+        </div>
+        <div v-if="open" class="exs-item-content">
+            <slot></slot>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -30,30 +30,30 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
-	name: 'ExpandableSlot',
+    name: 'ExpandableSlot',
 })
 export default class ExpandableSlot extends Vue {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({type: String, required: false, default: ''})
-	readonly image: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly image: string;
 
-	@Prop({type: String, required: false, default: ''})
-	readonly name: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly name: string;
 
-	@Prop({type: Boolean, required: false})
-	readonly open: boolean;
+    @Prop({ type: Boolean, required: false })
+    readonly open: boolean;
 
-	@Prop({type: Boolean, required: false, default: true})
-	readonly showDelete: boolean;
+    @Prop({ type: Boolean, required: false, default: true })
+    readonly showDelete: boolean;
 
-	@Prop({type: Boolean, required: false, default: true})
-	readonly showReorder: boolean;
+    @Prop({ type: Boolean, required: false, default: true })
+    readonly showReorder: boolean;
 
-	@Prop({type: Boolean, required: false, default: true})
-	readonly showEdit: boolean;
+    @Prop({ type: Boolean, required: false, default: true })
+    readonly showEdit: boolean;
 
 }
 

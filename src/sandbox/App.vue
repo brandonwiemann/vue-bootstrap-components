@@ -1,41 +1,41 @@
 <template>
-	<div>
-		<form-test />
-	</div>
+    <div>
+        <form-test />
+    </div>
 </template>
 
 <script>
 import FormTest from './FormTest.vue';
 export default {
-	name: 'app',
-	components: {
-		FormTest
-	},
-	computed: {
-		thing() {
-			return this.isSaving;
-		}
-	},
-	data() {
-		return {
-			isSaving: false,
-			offer: {
-				headerText: '',
-				startDate: '',
-				endDate: ''
-			}
-		};
-	},
-	methods: {
-		async saveOffer() {
-			this.isSaving = true;
-			let success = true;
-			this.isSaving = false;
-			if (success) {
-				this.$emit('cancel');
-			}
-		}
-	}
+    name: 'app',
+    components: {
+        FormTest
+    },
+    computed: {
+        thing() {
+            return this.isSaving;
+        }
+    },
+    data() {
+        return {
+            isSaving: false,
+            offer: {
+                headerText: '',
+                startDate: '',
+                endDate: ''
+            }
+        };
+    },
+    methods: {
+        async saveOffer() {
+            this.isSaving = true;
+            const success = true;
+            this.isSaving = false;
+            if (success) {
+                this.$emit('cancel');
+            }
+        }
+    }
 
 };
 </script>

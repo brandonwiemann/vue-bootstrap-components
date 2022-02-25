@@ -1,7 +1,7 @@
 <template>
-	<div class="vue-error" v-if="error">
-		<i class="fas fa fa-exclamation-triangle"></i> <span>{{error}}</span>
-	</div>
+    <div class="vue-error" v-if="error">
+        <i class="fas fa fa-exclamation-triangle"></i> <span>{{error}}</span>
+    </div>
 </template>
 
 <script lang="ts">
@@ -9,15 +9,15 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
-	name: 'ErrorMessage',
+    name: 'ErrorMessage',
 })
 export default class ErrorMessage extends Vue {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({type: String, required: false, default: ''})
-	readonly error: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly error: string;
 
 }
 

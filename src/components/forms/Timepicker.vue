@@ -1,27 +1,27 @@
 <template>
-	<form-field-wrapper v-bind="wrapperProps">
-		<timepicker-field
-			v-bind="$props"
-			v-on="$listeners"
-		/>
-	</form-field-wrapper>
+    <form-field-wrapper v-bind="wrapperProps">
+        <timepicker-field
+            v-bind="$props"
+            v-on="$listeners"
+        />
+    </form-field-wrapper>
 </template>
 
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import TimepickerField from './private/TimepickerField.vue';
 import BaseFormField from './private/BaseFormField.vue';
+import TimepickerField from './private/TimepickerField.vue';
+import { Component } from 'vue-property-decorator';
 
 @Component({
-	name: 'Timepicker',
-	components: {
-		TimepickerField
-	}
+    name: 'Timepicker',
+    components: {
+        TimepickerField
+    }
 })
 export default class Timepicker extends BaseFormField {
-	validate(): Promise<boolean> {
-		return Promise.resolve(true);
-	}
+    validate(): Promise<boolean> {
+        return Promise.resolve(true);
+    }
 }
 </script>

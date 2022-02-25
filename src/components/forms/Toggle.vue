@@ -1,76 +1,76 @@
 ﻿<template>
-	<div>
-		<div :class="['vue-ios-switch form-group', {'disabled': disabled}]">
-			<div v-if="!isHorizontal">
-				<input
-					data-test="checkbox"
-					@change="$emit('input', !value)"
-					type='checkbox'
-					:id="id"
-					:checked="value"
-					:disabled="disabled"
-					:class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
-				/>
-				<label :for="id">
-					<span v-if="label">{{ label }}</span>
-					<span v-if="!label">&nbsp;</span>
-				</label>
-				<span class="bf-helper-text" v-if="helpText" data-test="help-text">
-					{{helpText}}
-				</span>
-			</div>
-			<div v-if="isHorizontal">
-				<label class="col-sm-3 control-label">{{label}}</label>
-				<div class="col-sm-9 horizontal">
-					<div>
-						<input
-							data-test="checkbox"
-							@change="$emit('input', !value)"
-							type='checkbox'
-							:id="id"
-							:checked="value"
-							:disabled="disabled"
-							:class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
-						/>
-						<label :for="id">&nbsp;</label>
-					</div>
-					<div class="bf-helper-text bf-helper-below" v-if="helpText" data-test="help-text">
-						{{helpText}}
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div>
+        <div :class="['vue-ios-switch form-group', {'disabled': disabled}]">
+            <div v-if="!isHorizontal">
+                <input
+                    data-test="checkbox"
+                    @change="$emit('input', !value)"
+                    type='checkbox'
+                    :id="id"
+                    :checked="value"
+                    :disabled="disabled"
+                    :class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
+                />
+                <label :for="id">
+                    <span v-if="label">{{ label }}</span>
+                    <span v-if="!label">&nbsp;</span>
+                </label>
+                <span class="bf-helper-text" v-if="helpText" data-test="help-text">
+                    {{helpText}}
+                </span>
+            </div>
+            <div v-if="isHorizontal">
+                <label class="col-sm-3 control-label">{{label}}</label>
+                <div class="col-sm-9 horizontal">
+                    <div>
+                        <input
+                            data-test="checkbox"
+                            @change="$emit('input', !value)"
+                            type='checkbox'
+                            :id="id"
+                            :checked="value"
+                            :disabled="disabled"
+                            :class="[color, 'ios-switch', {'ios-switch-lg': size == 'lg', 'ios-switch-sm': size == 'sm'}]"
+                        />
+                        <label :for="id">&nbsp;</label>
+                    </div>
+                    <div class="bf-helper-text bf-helper-below" v-if="helpText" data-test="help-text">
+                        {{helpText}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator';
 import BaseFormField from './private/BaseFormField.vue';
 import { AnyObject } from '@/types/generic';
+import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
-	name: 'Toggle',
+    name: 'Toggle',
 })
 export default class Toggle extends BaseFormField {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({type: String, required: false, default: 'blue'})
-	readonly color: string;
+    @Prop({ type: String, required: false, default: 'blue' })
+    readonly color: string;
 
-	@Prop({type: [Boolean, Object], required: false})
-	readonly selected: boolean | AnyObject;
+    @Prop({ type: [Boolean, Object], required: false })
+    readonly selected: boolean | AnyObject;
 
-	@Prop({type: String, required: false, default: ''})
-	readonly size: string;
+    @Prop({ type: String, required: false, default: '' })
+    readonly size: string;
 
-	@Prop({type: Boolean, required: true})
-	readonly value: boolean;
+    @Prop({ type: Boolean, required: true })
+    readonly value: boolean;
 
-	validate(): Promise<boolean> {
-		return Promise.resolve(true);
-	}
+    validate(): Promise<boolean> {
+        return Promise.resolve(true);
+    }
 
 }
 

@@ -1,46 +1,46 @@
 <template>
-	<form-field-wrapper v-bind="wrapperProps">
-		<div class="pm-slider-wrapper">
-			<input
-				class="pm-slider"
-				type="range"
-				:disabled="disabled"
-				:min="min"
-				:max="max"
-				:value="value"
-				v-bind="$attrs"
-				v-on="inputListeners"
-			/>
-			<div class="pm-slider-amount" v-if="!hideAmount">
-				{{value}} {{units}}
-			</div>
-		</div>
-	</form-field-wrapper>
+    <form-field-wrapper v-bind="wrapperProps">
+        <div class="pm-slider-wrapper">
+            <input
+                class="pm-slider"
+                type="range"
+                :disabled="disabled"
+                :min="min"
+                :max="max"
+                :value="value"
+                v-bind="$attrs"
+                v-on="inputListeners"
+            />
+            <div class="pm-slider-amount" v-if="!hideAmount">
+                {{value}} {{units}}
+            </div>
+        </div>
+    </form-field-wrapper>
 </template>
 
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator';
 import BaseFormField from './private/BaseFormField.vue';
+import { Component, Prop } from 'vue-property-decorator';
 
 @Component({
-	name: 'Slider',
+    name: 'Slider',
 })
 export default class Slider extends BaseFormField {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	@Prop({type: Boolean, required: false})
-	readonly hideAmount: boolean;
+    @Prop({ type: Boolean, required: false })
+    readonly hideAmount: boolean;
 
-	@Prop({type: Number, required: false, default: 100})
-	readonly max: number;
+    @Prop({ type: Number, required: false, default: 100 })
+    readonly max: number;
 
-	@Prop({type: Number, required: false, default: 0})
-	readonly min: number;
+    @Prop({ type: Number, required: false, default: 0 })
+    readonly min: number;
 
-	@Prop({type: String, required: false, default: '%'})
-	readonly units: string;
+    @Prop({ type: String, required: false, default: '%' })
+    readonly units: string;
 
 }
 

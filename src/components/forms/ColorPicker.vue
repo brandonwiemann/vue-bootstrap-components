@@ -1,177 +1,177 @@
 <template>
-	<form-field-wrapper v-bind="wrapperProps">
-		<div class="color-picker" @keydown="handleEnterTab($event)">
-			<div class="input-group">
-				<span
-					class="input-group-addon color-preview"
-					:style="{'background-color': colorString}"
-					@click="showColorPicker = true"
-				>
+    <form-field-wrapper v-bind="wrapperProps">
+        <div class="color-picker" @keydown="handleEnterTab($event)">
+            <div class="input-group">
+                <span
+                    class="input-group-addon color-preview"
+                    :style="{'background-color': colorString}"
+                    @click="showColorPicker = true"
+                >
                     &nbsp;&nbsp;&nbsp;
-				</span>
-				<input
-					data-test="input"
-					type="text"
-					class="form-control"
-					:id="id"
-					:disabled="disabled"
-					:readonly="readonly"
-					v-model="colorString"
-					v-on="inputListeners"
-					ref="_input"
-				/>
-			</div>
-			<div class="picker-wrapper" v-if="showColorPicker">
-				<chrome-color-picker
-					:value="colorString"
-					@input="updateColor"
-				/>
-			</div>
-		</div>
-	</form-field-wrapper>
+                </span>
+                <input
+                    data-test="input"
+                    type="text"
+                    class="form-control"
+                    :id="id"
+                    :disabled="disabled"
+                    :readonly="readonly"
+                    v-model="colorString"
+                    v-on="inputListeners"
+                    ref="_input"
+                />
+            </div>
+            <div class="picker-wrapper" v-if="showColorPicker">
+                <chrome-color-picker
+                    :value="colorString"
+                    @input="updateColor"
+                />
+            </div>
+        </div>
+    </form-field-wrapper>
 </template>
 
 <script lang="ts">
-import { Component, Watch } from 'vue-property-decorator';
-import { FormInputEvent } from '@/types/forms';
 import BaseFormField from '@/components/forms/private/BaseFormField.vue';
 import FormValidator from '@/classes/FormValidator';
 import { Chrome } from 'vue-color';
+import { Component, Watch } from 'vue-property-decorator';
+import { FormInputEvent } from '@/types/forms';
 import { jsonEquals } from '@/helpers/json.helpers';
 
 @Component({
-	name: 'Colorpicker',
-	components: {
-		'chrome-color-picker': Chrome
-	}
+    name: 'Colorpicker',
+    components: {
+        'chrome-color-picker': Chrome
+    }
 })
 export default class Colorpicker extends BaseFormField {
 
-	$refs!: {
-		_input: HTMLInputElement;
-	}
+    $refs!: {
+        _input: HTMLInputElement;
+    }
 
-	/* Data
+    /* Data
 	============================================*/
 
-	colorString: string = this.value || '';
-	showColorPicker: boolean = false;
+    colorString: string = this.value || '';
+    showColorPicker: boolean = false;
 
-	/* Computed
+    /* Computed
 	============================================*/
 
-	get inputRules(): string {
-		if(typeof this.rules !== 'string') return '';
-		let userRules = this.rules || '';
-		if (userRules.indexOf('colorhex') > -1) return userRules;
-		return `${userRules}|colorhex`;
-	}
+    get inputRules(): string {
+        if (typeof this.rules !== 'string') return '';
+        const userRules = this.rules || '';
+        if (userRules.indexOf('colorhex') > -1) return userRules;
+        return `${userRules}|colorhex`;
+    }
 
-	get inputListeners(): Record<string, Function | Function[]> {
-		let self = this;
-		return Object.assign({}, self.$listeners, {
-			input(event: FormInputEvent) {
-				self.updateColor(event.target.value);
-			},
-			focus() {
-				self.showColorPicker = true;
-			}
-		});
-	}
+    get inputListeners(): Record<string, Function | Function[]> {
+        const self = this;
+        return Object.assign({}, self.$listeners, {
+            input(event: FormInputEvent) {
+                self.updateColor(event.target.value);
+            },
+            focus() {
+                self.showColorPicker = true;
+            }
+        });
+    }
 
-	/* Methods
+    /* Methods
 	============================================*/
 
-	getValidator(): FormValidator {
-		if(this.$validator && (this.$validator instanceof FormValidator)) {
-			return this.$validator;
-		}
-		return new FormValidator();
-	}
+    getValidator(): FormValidator {
+        if (this.$validator && (this.$validator instanceof FormValidator)) {
+            return this.$validator;
+        }
+        return new FormValidator();
+    }
 
-	handleEnterTab($e: KeyboardEvent) {
-		if(!this.showColorPicker) return;
-		if ($e.keyCode === 27) {
-			this.hideColorPicker();
-		} else if ($e.keyCode === 13 || $e.keyCode === 9) {
-			let target = $e.target as HTMLLIElement;
-			if(!target) return;
-			this.updateColor(target.value);
-			this.hideColorPicker();
-		}
-	}
+    handleEnterTab($e: KeyboardEvent) {
+        if (!this.showColorPicker) return;
+        if ($e.keyCode === 27) {
+            this.hideColorPicker();
+        } else if ($e.keyCode === 13 || $e.keyCode === 9) {
+            const target = $e.target as HTMLLIElement;
+            if (!target) return;
+            this.updateColor(target.value);
+            this.hideColorPicker();
+        }
+    }
 
-	handleExternalEvents(remove = false) {
-		let self = this;
-		if (!remove) {
-			document.body.addEventListener(
-				'click',
-				self.hideColorPicker.bind(this)
-			);
-			document.body.addEventListener(
-				'keydown',
-				self.handleEnterTab.bind(this)
-			);
-		} else {
-			document.body.removeEventListener(
-				'click',
-				self.hideColorPicker
-			);
-			document.body.removeEventListener(
-				'keydown',
-				self.handleEnterTab
-			);
-		}
-	}
+    handleExternalEvents(remove = false) {
+        const self = this;
+        if (!remove) {
+            document.body.addEventListener(
+                'click',
+                self.hideColorPicker.bind(this)
+            );
+            document.body.addEventListener(
+                'keydown',
+                self.handleEnterTab.bind(this)
+            );
+        } else {
+            document.body.removeEventListener(
+                'click',
+                self.hideColorPicker
+            );
+            document.body.removeEventListener(
+                'keydown',
+                self.handleEnterTab
+            );
+        }
+    }
 
-	hideColorPicker($e?: Event) {
-		if ($e) {
-			if (this.$el.contains($e.target as HTMLElement)) return;
-		}
-		this.showColorPicker = false;
-		if (!this.$refs._input) return;
-		this.$refs._input.blur();
-	}
+    hideColorPicker($e?: Event) {
+        if ($e) {
+            if (this.$el.contains($e.target as HTMLElement)) return;
+        }
+        this.showColorPicker = false;
+        if (!this.$refs._input) return;
+        this.$refs._input.blur();
+    }
 
-	updateColor(color: any) {
-		if (typeof color === 'object' && color.hex) {
-			this.colorString = color.hex;
-		} else if (typeof color === 'string') {
-			this.colorString = color;
-		} else {
-			this.colorString = '';
-		}
-		this.$emit('input', this.colorString);
-	}
+    updateColor(color: any) {
+        if (typeof color === 'object' && color.hex) {
+            this.colorString = color.hex;
+        } else if (typeof color === 'string') {
+            this.colorString = color;
+        } else {
+            this.colorString = '';
+        }
+        this.$emit('input', this.colorString);
+    }
 
-	validate(): Promise<boolean> {
-		return new Promise((resolve) => {
-			this.error = null;
-			if(!this.canValidate) resolve(true);
-			this.error = this.getValidator().validate(this.inputRules, this.value);
-			resolve(!this.error);
-		});
-	}
+    validate(): Promise<boolean> {
+        return new Promise((resolve) => {
+            this.error = null;
+            if (!this.canValidate) resolve(true);
+            this.error = this.getValidator().validate(this.inputRules, this.value);
+            resolve(!this.error);
+        });
+    }
 
-	/* Lifecycle Hooks
+    /* Lifecycle Hooks
 	============================================*/
 
-	mounted() {
-		this.handleExternalEvents();
-	}
+    mounted() {
+        this.handleExternalEvents();
+    }
 
-	beforeDestroy() {
-		this.handleExternalEvents(true);
-	}
+    beforeDestroy() {
+        this.handleExternalEvents(true);
+    }
 
-	/* Watchers
+    /* Watchers
 	============================================*/
 
-	@Watch('value')
-	onValueChange(newVal: any, oldVal: any) {
-		if(jsonEquals(newVal, oldVal)) return;
-		this.updateColor(newVal);
-	}
+    @Watch('value')
+    onValueChange(newVal: any, oldVal: any) {
+        if (jsonEquals(newVal, oldVal)) return;
+        this.updateColor(newVal);
+    }
 
 }
 

@@ -1,14 +1,15 @@
 <template>
-	<div class="pagination-test">
-		<h3>Pagination Test</h3>
-		<pagination
-			alwaysShow
-			:maxPages="maxPages"
-			:pageNum="pageNum"
-			:resultsPerPage="resultsPerPage"
-			:totalResults="totalResults"
-			@paginate="handlePaginate" />
-	</div>
+    <div class="pagination-test">
+        <h3>Pagination Test</h3>
+        <pagination
+            alwaysShow
+            :maxPages="maxPages"
+            :pageNum="pageNum"
+            :resultsPerPage="resultsPerPage"
+            :totalResults="totalResults"
+            @paginate="handlePaginate"
+        />
+    </div>
 </template>
 
 <script lang="ts">
@@ -16,33 +17,34 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
 @Component({
-	name: 'PaginationTest',
+    name: 'PaginationTest',
 })
 export default class PaginationTest extends Vue {
 
-	/* Props
+    /* Props
 	============================================*/
 
-	/* Data
+    /* Data
 	============================================*/
-	maxPages: number = 4;
-	pageNum: number = 3;
-	resultsPerPage: number = 25;
-	totalResults: number = 100;
+    maxPages: number = 4;
+    pageNum: number = 3;
+    resultsPerPage: number = 25;
+    totalResults: number = 100;
 
-	/* Computed
-	============================================*/
-
-	/* Methods
-	============================================*/
-	handlePaginate(newPage) {
-		console.log('paginate page', newPage);
-	}
-
-	/* Lifecycle Hooks
+    /* Computed
 	============================================*/
 
-	/* Watchers
+    /* Methods
+	============================================*/
+
+    handlePaginate(newPage) {
+
+    }
+
+    /* Lifecycle Hooks
+	============================================*/
+
+    /* Watchers
 	============================================*/
 
 }
