@@ -11,13 +11,7 @@
 
 ## Getting Started
 
-1. Install with npm
-
-``` bash
-npm i vue-bootstrap-components -S
-```
-
-2. Import the plugin in your entry file and register the plugin with Vue
+1. Import the plugin in your entry file and register the plugin with Vue
 ``` javascript
 import Vue from 'vue';
 import AdminComponents from 'vue-bootstrap-components';
@@ -26,7 +20,7 @@ Vue.use(AdminComponents);
 // ...
 ```
 
-3. Components are globally registered in your vue application and can be used wherver they are needed. See the full list of available components [here]() (TODO).
+2. Components are globally registered in your vue application and can be used wherver they are needed. See the full list of available components [here]() (TODO).
 
 ``` html
 <template>
